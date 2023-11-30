@@ -1,0 +1,49 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/style.css">
+  <title>Home Page</title>
+</head>
+
+<body>
+  <div class="topnav">
+    <a href="/admin">Home</a>
+    <a href="/admin/add">Thêm</a>
+    <a class="active" href="/admin/update">Sửa</a>
+    <a href="/admin/delete">Xóa</a>
+  </div>
+  <div>
+    <form method="POST" action="/update-book" enctype="multipart/form-data">
+      <fieldset>
+        <legend>Sửa thông tin sách</legend>
+        <label for="id_book">Id sách</label>
+        <input type="text" name="id_book"><br>
+        <label for="name">Tên sách</label>
+        <input type="text" name="name"><br>
+        <label for="date">Ngày xuất bản</label>
+        <input type="date" name="date"><br>
+        <label for="price">Giá</label>
+        <input type="text" name="price"><br>
+        <label for="lng">Ngôn ngữ</label>
+        <select name="lng" id="lng">
+          <option value="eng">English</option>
+          <option value="vie">Tiếng Việt</option>
+        </select><br>
+        <label for="author">Tác giả</label>
+        <input type="text" name="author"><br>
+        <label for="birth_author">Ngày sinh tác giả</label>
+        <input class="birth_author" type="date" name="birth_author"><br>
+        <label for="category">Thể loại</label>
+        <input type="text" name="category"><br>
+        <label for="quantity">Số lượng</label>
+        <input type="number" name="quantity"><br>
+        <label for="up_file">Ảnh</label>
+        <input type="file" name="image"><br>
+        <button type="submit">Sửa</button>
+      </fieldset>
+  </div>
+</body>
+
+</html>
