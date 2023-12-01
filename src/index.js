@@ -17,6 +17,6 @@ configViewEngine(app)
 app.use('/', webRoutes)
 app.use('/api',APIroutes)
 
-app.listen(port, () => {
+app.listen(port, hostname, () => {
   console.log(`Example app listening on port ${port}`)
 })
