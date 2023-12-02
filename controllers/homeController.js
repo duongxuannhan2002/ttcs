@@ -27,7 +27,7 @@ const getAdminDelete = (req, res) => {
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './src/public/image');
+        cb(null, './public/image');
     },
 
     // By default, multer removes file extensions so let's add them back

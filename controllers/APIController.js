@@ -1,4 +1,4 @@
-const {
+import {
     readListBook,
     createUser,
     changePassWordUser,
@@ -8,17 +8,22 @@ const {
     readListBooksBySearch,
     createOrder,
     createOrderItem
-} = require('../services/CRUDservice')
+} from '../services/CRUDservice.js'
 
-const getBooks = async (req,res) => {
+export const getBooks = async (req,res) => {
+    try {
     let results = await readListBook()
+    console.log('a', results)
     return res.status(200).json({
         massege: 'ok',
         data: results
     })
+} catch (error) {
+    res.status(409).json({ message: error.message });
+}
 }
 
-const postUser = async (req, res) => {
+export const postUser = async (req, res) => {
     name = req.body.name
     email = req.body.email
     pass = req.body.pass
@@ -34,7 +39,7 @@ const postUser = async (req, res) => {
     })
 }
 
-const putPassWordUser = async (req,res) => {
+export const putPassWordUser = async (req,res) => {
     let id = req.body.id
     let pass = req.body.pass
     if(!id ||!pass){
@@ -48,7 +53,7 @@ const putPassWordUser = async (req,res) => {
     })
 }
 
-const getUser = async (req,res) => {
+export const getUser = async (req,res) => {
     let email = req.body.email
     let pass = req.body.pass
     if(!email ||!pass){
@@ -63,7 +68,7 @@ const getUser = async (req,res) => {
     })
 }
 
-const getBooksByLng = async (req, res) => {
+export const getBooksByLng = async (req, res) => {
     if(!req.body.lng){
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -76,7 +81,7 @@ const getBooksByLng = async (req, res) => {
     })
 }
 
-const getBooksByCategory = async (req,res) => {
+export const getBooksByCategory = async (req,res) => {
     if(!req.body.category){
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -89,7 +94,7 @@ const getBooksByCategory = async (req,res) => {
     })
 }
 
-const getBooksBySearch = async (req,res) => {
+export const getBooksBySearch = async (req,res) => {
     if(!req.body.key){
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -102,7 +107,7 @@ const getBooksBySearch = async (req,res) => {
     })
 }
 
-const postOrder = async (req,res) =>{
+export const postOrder = async (req,res) =>{
     let user_id = req.body.user_id
     let order_date = req.body.order_date
     if(!user_id||!order_date){
@@ -116,7 +121,7 @@ const postOrder = async (req,res) =>{
     })
 }
 
-const postOrderItem = async (req, res) => {
+export const postOrderItem = async (req, res) => {
     let order_id = req.body.order_id
     let book_id = req.body.book_id
     let quantity = req.body.quantity
@@ -129,16 +134,4 @@ const postOrderItem = async (req, res) => {
     return res.status(200).json({
         message: 'ok'
     })
-}
-
-module.exports = {
-    getBooks,
-    postUser,
-    putPassWordUser,
-    getUser,
-    getBooksByLng,
-    getBooksByCategory,
-    getBooksBySearch,
-    postOrder,
-    postOrderItem
 }

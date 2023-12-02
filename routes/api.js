@@ -1,6 +1,5 @@
-const express = require('express')
-const router = express.Router()
-const {
+import express, { Router } from "express";
+import {
     getBooks,
     postUser,
     putPassWordUser,
@@ -9,8 +8,9 @@ const {
     getBooksByCategory,
     getBooksBySearch,
     postOrder,
-    postOrderItem} = require('../controllers/APIController')
+    postOrderItem}  from '../controllers/APIController.js'
 
+const router = express.Router();
 router.get('/get-book', getBooks)
 router.get('/get-user', getUser)
 router.get('/get-book-by-lng', getBooksByLng)
@@ -23,4 +23,4 @@ router.post('/post-order-item', postOrderItem)
 
 router.put('/put-password-user', putPassWordUser)
 
-module.exports = router
+export default router
