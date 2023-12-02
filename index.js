@@ -16,6 +16,6 @@ app.listen(process.env.PORT, (req, res) => {
 });
 process.on('warning', e => console.warn(e.stack));
 app.use('/api/v1', apiRouter)
-app.use('/', webRouter)
+app.use('/admin', webRouter)
 
 export default app;
