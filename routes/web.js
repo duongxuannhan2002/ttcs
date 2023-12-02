@@ -1,6 +1,5 @@
 import express, { Router } from "express";
 import {
-    getHomePage,
     getAdminPage,
     getAdminAdd,
     getAdminUpdate,
@@ -14,7 +13,7 @@ import {
 
 const router = express.Router()
 
-router.get('/', getHomePage)
+router.get('/', getAdminPage)
 
 router.get('/add', getAdminAdd)
 router.get('/update', getAdminUpdate)
