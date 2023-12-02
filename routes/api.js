@@ -9,7 +9,7 @@ const {
     getBooksByCategory,
     getBooksBySearch,
     postOrder,
-    postOrderItem} = require('../src/controllers/APIController')
+    postOrderItem} = require('../controllers/APIController')
 
 router.get('/get-book', getBooks)
 router.get('/get-user', getUser)

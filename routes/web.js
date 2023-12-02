@@ -11,7 +11,7 @@ const {
     upload,
     postCreateBook,
     postUpdateBook,
-    postDeleteBook} = require('../src/controllers/homeController')
+    postDeleteBook} = require('../controllers/homeController')
 
 router.get('/', getHomePage)
 
