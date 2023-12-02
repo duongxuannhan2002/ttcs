@@ -6,7 +6,7 @@ const webRoutes = require('./routes/web')
 const APIroutes = require('./routes/api')
 
 const app = express()
-const port = process.env.port || 8888
+const port = process.env.PORT
 const hostname = process.env.HOST_NAME
 
 app.use(express.json()) // for json
@@ -17,6 +17,7 @@ configViewEngine(app)
 app.use('/', webRoutes)
 app.use('/api',APIroutes)
 
-app.listen(port, hostname, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+
+app.listen(port, (req, res) => {
+  console.log(`Server runing on port : ${port} `);
+});
