@@ -1,7 +1,5 @@
-const express = require('express')
-const router = express.Router()
-const multer = require('multer')
-const {
+import express, { Router } from "express";
+import {
     getHomePage,
     getAdminPage,
     getAdminAdd,
@@ -11,7 +9,9 @@ const {
     upload,
     postCreateBook,
     postUpdateBook,
-    postDeleteBook} = require('../controllers/homeController')
+    postDeleteBook} from '../controllers/homeController.js'
+
+const router = express.Router()
 
 router.get('/', getHomePage)
 
@@ -25,4 +25,4 @@ router.post('/create-book',upload.single('image'),postCreateBook)
 router.post('/update-book',upload.single('image'),postUpdateBook)
 router.post('/delete-book',postDeleteBook)
 // router.get('/check',checkCategory)
-module.exports = router
+export default router

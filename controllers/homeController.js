@@ -1,31 +1,31 @@
-const connection = require('../config/database')
-const multer = require('multer')
-const fs = require('fs')
-const path = require('path')
-const { createBook,
+import connection from '../config/database.js'
+import multer from 'multer'
+import fs from 'fs'
+import path from 'path'
+import { createBook,
     updateBook,
-    deleteBook } = require('../services/CRUDservice')
+    deleteBook } from '../services/CRUDservice.js'
 
-const getHomePage =  (req, res) => {
-   res.send('<h1>Xin chào</h1>')
+export const getHomePage = (req, res) => {
+    res.send('<h1>Xin chào</h1>')
 }
-const getAdminPage = (req, res) => {
+export const getAdminPage = (req, res) => {
     res.render('adminHome.ejs')
 }
 
-const getAdminAdd = (req, res) => {
+export const getAdminAdd = (req, res) => {
     res.render('adminAdd.ejs')
 }
 
-const getAdminUpdate = (req, res) => {
+export const getAdminUpdate = (req, res) => {
     res.render('adminUpdate.ejs')
 }
 
-const getAdminDelete = (req, res) => {
+export const getAdminDelete = (req, res) => {
     res.render('adminDelete.ejs')
 }
 
-const storage = multer.diskStorage({
+export const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, './public/image');
     },
@@ -36,7 +36,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const imageFilter = function (req, file, cb) {
+export const imageFilter = function (req, file, cb) {
     // Accept images only
     if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/)) {
         req.fileValidationError = 'Only image files are allowed!';
@@ -45,9 +45,9 @@ const imageFilter = function (req, file, cb) {
     cb(null, true);
 };
 
-let upload = multer({ storage: storage, fileFilter: imageFilter });
+export let upload = multer({ storage: storage, fileFilter: imageFilter });
 
-const uploadFile = (req, res) => {
+export const uploadFile = (req, res) => {
     if (req.fileValidationError) {
         return res.send(req.fileValidationError);
     }
@@ -58,18 +58,18 @@ const uploadFile = (req, res) => {
     const file = req.file;
     const imagePath = file.path;
     const base64String = fs.readFileSync(imagePath, { encoding: 'base64' });
-    fs.unlink(imagePath, (err => { 
-        if (err) console.log(err); 
-      })); 
+    fs.unlink(imagePath, (err => {
+        if (err) console.log(err);
+    }));
     return base64String
 
 
 }
-const getUploadFile = (req, res) => {
+export const getUploadFile = (req, res) => {
     res.render('upload.ejs')
 }
 
-const checkAuthor = async (name, birth) => {
+export const checkAuthor = async (name, birth) => {
     let [results, fields] = await connection.query(
         `SELECT * FROM author
         WHERE name = ? AND birth = ?`, [name, birth]
@@ -86,7 +86,7 @@ const checkAuthor = async (name, birth) => {
     }
 }
 
-const checkCategory = async (name) => {
+export const checkCategory = async (name) => {
     let [results, fields] = await connection.query(
         `SELECT * FROM category
         WHERE name = ? `, [name]
@@ -103,7 +103,7 @@ const checkCategory = async (name) => {
     }
 }
 
-const postCreateBook = async (req, res) => {
+export const postCreateBook = async (req, res) => {
     const imageString = await uploadFile(req, res)
     let name = req.body.name
     let date = req.body.date
@@ -119,7 +119,7 @@ const postCreateBook = async (req, res) => {
     res.send("success")
 }
 
-const postUpdateBook = async (req, res) => {
+export const postUpdateBook = async (req, res) => {
     const imageString = await uploadFile(req, res)
     let id = req.body.id_book
     let name = req.body.name
@@ -136,22 +136,9 @@ const postUpdateBook = async (req, res) => {
     res.send("success")
 }
 
-const postDeleteBook = async (req, res) => {
+export const postDeleteBook = async (req, res) => {
     let id = req.body.id_book
     await deleteBook(id)
     res.send('success')
 }
 
-module.exports = {
-    getHomePage,
-    getAdminPage,
-    getAdminAdd,
-    getAdminUpdate,
-    getAdminDelete,
-    getUploadFile,
-    upload,
-    postCreateBook,
-    checkCategory,
-    postUpdateBook,
-    postDeleteBook
-}
