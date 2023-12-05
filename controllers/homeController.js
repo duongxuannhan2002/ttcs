@@ -124,9 +124,9 @@ export const checkCategory = async (name) => {
 }
 
 export const postCreateBook = async (req, res) => {
-    console.log('a', req.body)
     // const imageString = await uploadFile(req, res)
-    const imageString2 = await uploadImageFireBase(req, res)
+    let imageString = await uploadImageFireBase(req.file)
+    console.log('imageString', imageString)
     let name = req.body.name
     let date = req.body.date
     let price = req.body.price
@@ -138,7 +138,8 @@ export const postCreateBook = async (req, res) => {
     // let author_id = await checkAuthor(author, birth_author)
     // let category_id = await checkCategory(category)
     // await createBook(name, date, price, quantity, imageString, lng, author_id, category_id)
-    // res.send("success")
+    await createBook(name, date, price, quantity, imageString, lng, '1', '1')
+    res.send("success")
 }
 
 export const postUpdateBook = async (req, res) => {

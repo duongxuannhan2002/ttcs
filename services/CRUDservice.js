@@ -15,11 +15,19 @@ export const readListBook = async () => {
 }
 
 export const createBook = async (name, date, price, quantity, imageString, lng, author_id, category_id) => {
-    let [results, fields] = await connection.query(
-        ` INSERT INTO book(name,publication_date,price,quantity,image,lng,author_id,category_id) 
+    return new Promise((resolve, reject) => {
+    connection.query(` INSERT INTO book(name,publication_date, price,quantity,image,lng,author_id,category_id) 
         values(?,?,?,?,?,?,?,?)
-        `, [name, date, price, quantity, imageString, lng, author_id, category_id],
-    )
+        `, [name, date, price, quantity, imageString, lng, author_id, category_id], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
 export const updateBook = async (name, date, price, quantity, imageString, lng, author_id, category_id, id) => {
