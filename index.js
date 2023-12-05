@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 import cors from "cors";
 import apiRouter from './routes/api.js'
 import dotenv from "dotenv"
@@ -11,6 +10,7 @@ const app = express()
 app.use(cors());
 dotenv.config();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 configViewEngine(app)
 
 app.listen(process.env.PORT, (req, res) => {

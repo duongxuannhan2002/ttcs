@@ -5,6 +5,7 @@ import path from 'path'
 import { createBook,
     updateBook,
     deleteBook } from '../services/CRUDservice.js'
+import uploadImageFireBase from './uploadImage.js'
 
 export const getHomePage = (req, res) => {
     res.send('<h1>Xin chào</h1>')
@@ -65,6 +66,25 @@ export const uploadFile = (req, res) => {
 
 
 }
+async function uploadImages(ev) {
+    const files = ev.target?.files;
+    if (files?.length > 0) {
+      setIsUploading(true);
+      const data = new FormData();
+      for (const file of files) {
+        data.append('file', file);
+      }
+      const res = await axios.post('/api/upload', data);
+      setImages(oldImages => {
+        return [...oldImages, ...res.data.links];
+      });
+      setIsUploading(false);
+    }
+  }
+  function updateImagesOrder(images) {
+    setImages(images);
+  }
+
 export const getUploadFile = (req, res) => {
     res.render('upload.ejs')
 }
@@ -104,7 +124,9 @@ export const checkCategory = async (name) => {
 }
 
 export const postCreateBook = async (req, res) => {
-    const imageString = await uploadFile(req, res)
+    // const imageString = await uploadFile(req, res)
+    let imageString = await uploadImageFireBase(req.file)
+    console.log('imageString', imageString)
     let name = req.body.name
     let date = req.body.date
     let price = req.body.price
@@ -113,9 +135,10 @@ export const postCreateBook = async (req, res) => {
     let author = req.body.author
     let birth_author = req.body.birth_author
     let category = req.body.category
-    let author_id = await checkAuthor(author, birth_author)
-    let category_id = await checkCategory(category)
-    await createBook(name, date, price, quantity, imageString, lng, author_id, category_id)
+    // let author_id = await checkAuthor(author, birth_author)
+    // let category_id = await checkCategory(category)
+    // await createBook(name, date, price, quantity, imageString, lng, author_id, category_id)
+    await createBook(name, date, price, quantity, imageString, lng, '1', '1')
     res.send("success")
 }
 
