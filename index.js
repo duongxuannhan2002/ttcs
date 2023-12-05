@@ -5,6 +5,9 @@ import apiRouter from './routes/api.js'
 import dotenv from "dotenv"
 import webRouter from './routes/web.js'
 import configViewEngine from "./config/viewEngine.js";
+import {
+    postCreateBook,
+} from './controllers/homeController.js'
 
 const app = express()
 
@@ -19,5 +22,6 @@ app.listen(process.env.PORT, (req, res) => {
 process.on('warning', e => console.warn(e.stack));
 app.use('/api/v1', apiRouter)
 app.use('/admin', webRouter)
+app.post('/create-book', postCreateBook)
 
 export default app;
