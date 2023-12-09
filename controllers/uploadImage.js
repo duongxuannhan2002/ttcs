@@ -12,7 +12,6 @@ export default async function uploadImageFireBase(file) {
     const ext = file.originalname.split('.').pop();
     const newFilename = Date.now() + '.' + ext;
     const fileData = fs.readFileSync(file.path);
-
     const storage = getStorage();
     const storageRef = ref(storage, `images/${newFilename}`);
     const uploadTask = uploadBytesResumable(storageRef, fileData);
@@ -42,6 +41,14 @@ export default async function uploadImageFireBase(file) {
         });
       }
     );
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    
+      console.log('Tệp đã được xóa thành công');
+    });
   });
 }
 

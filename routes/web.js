@@ -4,24 +4,21 @@ import {
     getAdminAdd,
     getAdminUpdate,
     getAdminDelete,
-    getUploadFile,
+    postCreateShoes,
+    postUpdateShoes,
     upload,
-    postCreateBook,
-    postUpdateBook,
-    postDeleteBook
+    postDeleteShoes
 } from '../controllers/homeController.js'
 
 const router = express.Router()
 
 router.get('/', getAdminPage)
-
 router.get('/add', getAdminAdd)
 router.get('/update', getAdminUpdate)
 router.get('/delete', getAdminDelete)
-router.get('/upload', getUploadFile)
 
-router.post('/create-book', upload.single('image'), postCreateBook)
-router.post('/update-book', upload.single('image'), postUpdateBook)
-router.post('/delete-book', postDeleteBook)
-// router.get('/check',checkCategory)
+
+router.post('/create-shoes',upload.single('image'), postCreateShoes)
+router.post('/update-shoes',upload.single('image'), postUpdateShoes)
+router.post('/delete-shoes',postDeleteShoes)
 export default router

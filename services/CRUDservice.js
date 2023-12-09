@@ -1,8 +1,8 @@
 import connection from '../config/database.js'
 
-export const readListBook = async () => {
-    return new Promise((resolve, reject) => {
-    connection.query('SELECT * FROM book', (error, results) => {
+export const readListShoes = async () => {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM product', (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -14,11 +14,11 @@ export const readListBook = async () => {
   });
 }
 
-export const createBook = async (name, date, price, quantity, imageString, lng, author_id, category_id) => {
-    return new Promise((resolve, reject) => {
-    connection.query(` INSERT INTO book(name,publication_date, price,quantity,image,lng,author_id,category_id) 
-        values(?,?,?,?,?,?,?,?)
-        `, [name, date, price, quantity, imageString, lng, author_id, category_id], (error, results) => {
+export const createShoes = async (name, price, quantity, imageString, id_brand, discount, sold) => {
+  return new Promise((resolve, reject) => {
+    connection.query(` INSERT INTO product(name, price, quantity, image, id_brand, discount, sold) 
+        values(?,?,?,?,?,?,?)
+        `, [name, price, quantity, imageString, id_brand, discount, sold], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -30,74 +30,157 @@ export const createBook = async (name, date, price, quantity, imageString, lng, 
   });
 }
 
-export const updateBook = async (name, date, price, quantity, imageString, lng, author_id, category_id, id) => {
-    let [results, fields] = await connection.query(
-        `
-        UPDATE book SET
-        name = ?, publication_date = ?, price = ?, quantity = ?, image = ?, lng = ?, author_id = ?, category_id = ? 
-        WHERE id = ?    
-        `, [name, date, price, quantity, imageString, lng, author_id, category_id, id],
-    )
+export const updateShoes = async (name, price, quantity, imageString, id_brand, discount, sold, id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(` UPDATE product SET
+        name=?, price=?, quantity=?, image=?, id_brand=?, discount=?, sold=?
+        Where id=?    
+        `, [name, price, quantity, imageString, id_brand, discount, sold, id], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
-export const deleteBook = async (id) => {
-    let [results, fields] = await connection.query(`DELETE FROM book WHERE id = ? `, [id])
+export const deleteShoes = async (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`DELETE FROM product WHERE id = ? `, [id], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
-export const createUser = async (name, email, pass, address) => {
-    let [results, fields] = await connection.query(
-        ` INSERT INTO users(name, email, pass, address) 
-        values(?,?,?,?)
-        `, [name, email, pass, address],
-    )
+export const createUser = async (name, email, pass, address, phoneNumber) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`INSERT INTO users(name, email, pass, address, phone_number) 
+        values(?,?,?,?,?)
+        `, [name, email, pass, address,phoneNumber], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
-
-export const changePassWordUser = async (id, pass) => {
-    let [results, fields] = await connection.query(
-        `UPDATE users SET pass = ? WHERE id = ?`, [pass, id])
+export const updateUser = async (name, email, address, phoneNumber,id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`UPDATE users SET
+    name=?, email=?, address=?, phone_number=?
+    WHERE id=?`,[name,email,address,phoneNumber,id], (error,results) => {
+      if (error) {
+        console.log('Lỗi truy vấn: ',error);
+        reject(error)
+      }
+      else {
+        console.log(results);
+        resolve(results);
+      }
+    })
+  })
 }
 
-
-export const checkLogIn = async (email, pass) => {
-    let [results, fields] = await connection.query(
-        `SELECT * FROM users WHERE email = ? AND pass = ?`, [email, pass])
-    return results
+export const deleteUser = async (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`DELETE FROM users WHERE id = ? `, [id], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
 export const readListBooksByLng = async (lng) => {
-    let [results, fields] = await connection.query(
-        `SELECT * FROM book WHERE lng = ?`, [lng])
-    return results
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT * FROM book WHERE lng = ?`, [lng], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
-export const readListBooksByCategory = async (category) => {
-    let [results, fields] = await connection.query(
-        `SELECT * FROM book WHERE category = ?`, [category])
-    return results
+export const readListShoesByBrand = async (brand) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT product.*, brand.* FROM product
+    JOIN brand ON product.id_brand= brand.id
+    WHERE brand.name = ?`, [brand], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
 export const readListBooksBySearch = async (key) => {
-    let [results, fields] = await connection.query(
-        `SELECT book.id, book.name, author.name AS author_name, book.price, book.quantity, book.category_id , book.image, book.lng
-        FROM book
-        JOIN author ON book.author_id  = author.id
-        WHERE author.name = ? OR book.name = ?`, [key,key])
-    return results
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT product.*, brand.*
+        FROM product
+        JOIN brand ON product.id_brand = brand.id
+        WHERE brand.name = ? OR product.name = ?`, [key, key], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
-export const createOrder = async (user_id, order_date) => {
-    let [results, fields] = await connection.query(
-        ` INSERT INTO orders(user_id, order_date) 
-        values(?,?)
-        `, [user_id, order_date]
-    )
+export const readCheckBrand = async (name, country) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT * FROM brand
+    WHERE name = ? AND country = ?`, [name, country], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        // console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }
 
-export const createOrderItem = async (order_id, book_id, quantity) => {
-    let [results, fields] = await connection.query(
-        ` INSERT INTO order_item(order_id, book_id, quantity) 
-        values(?,?,?)
-        `, [order_id, book_id, quantity]
-    )
+export const createBrand = async (name, country) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`INSERT INTO brand(name,country) 
+    values(?,?)`,[name, country], (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        // console.log(results);
+        resolve(results);
+      }
+    });
+  });
 }

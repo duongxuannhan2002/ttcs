@@ -1,18 +1,19 @@
+import uploadImageFireBase from './uploadImage.js'
 import {
-    readListBook,
+    readListShoes,
     createUser,
-    changePassWordUser,
-    checkLogIn,
     readListBooksByLng,
-    readListBooksByCategory,
     readListBooksBySearch,
-    createOrder,
-    createOrderItem
+    updateUser,
+    createShoes,
+    updateShoes,
+    deleteShoes,
+    deleteUser
 } from '../services/CRUDservice.js'
 
-export const getBooks = async (req, res) => {
+export const getShoes = async (req, res) => {
     try {
-        let results = await readListBook()
+        let results = await readListShoes()
         console.log('a', results)
         return res.status(200).json({
             massege: 'ok',
@@ -24,58 +25,60 @@ export const getBooks = async (req, res) => {
 }
 
 export const postUser = async (req, res) => {
-    name = req.body.name
-    email = req.body.email
-    pass = req.body.pass
-    address = req.body.address
-    if (!email || !name || !pass || !address) {
-        return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-    try {
-        createUser(name, email, pass, address)
-        return res.status(200).json({
-            message: 'ok men'
-        })
-    } catch (error) {
-        res.status(409).json({ message: error.message });
-    }
-
-}
-
-export const putPassWordUser = async (req, res) => {
-    let id = req.body.id
-    let pass = req.body.pass
-    if (!id || !pass) {
-        return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-    try {
-        await changePassWordUser(id, pass)
-        return res.status(200).json({
-            message: 'ok men'
-        })
-    } catch (error) {
-        res.status(409).json({ message: error.message });
-    }
-
-}
-
-export const getUser = async (req, res) => {
+    let name = req.body.name
     let email = req.body.email
+    let phoneNumber = req.body.phoneNumber
     let pass = req.body.pass
-    if (!email || !pass) {
+    let address = req.body.address
+    if (!email || !name || !pass || !address || !phoneNumber) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
     try {
-        let results = await checkLogIn(email, pass)
+        createUser(name, email, pass, address, phoneNumber)
         return res.status(200).json({
-            massege: 'ok',
-            data: results[0]
+            message: 'ok men'
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
+
+}
+
+export const putUser = (req, res) =>{
+    let name = req.body.name
+    let email = req.body.email
+    let phoneNumber = req.body.phoneNumber
+    let address = req.body.address
+    let id = req.body.id
+    if (!email || !name || !address || !phoneNumber ||!id) {
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        updateUser(name, email, address, phoneNumber, id)
+        return res.status(200).json({
+            message: 'ok men'
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
+
+}
+
+export const delUser = (req, res) => {
+    let id = req.body.id
+    if (!id) {
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        deleteUser(id)
+        return res.status(200).json({
+            message: 'ok men'
         })
     } catch (error) {
         res.status(409).json({ message: error.message });
@@ -100,14 +103,14 @@ export const getBooksByLng = async (req, res) => {
 
 }
 
-export const getBooksByCategory = async (req, res) => {
-    if (!req.body.category) {
+export const getShoesByBrand = async (req, res) => {
+    if (!req.body.brand) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
     try {
-        let results = await readListBooksByCategory(req.body.category)
+        let results = await readListShoesByBrand(req.body.brand)
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -115,7 +118,6 @@ export const getBooksByCategory = async (req, res) => {
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
-
 }
 
 export const getBooksBySearch = async (req, res) => {
@@ -133,44 +135,4 @@ export const getBooksBySearch = async (req, res) => {
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
-
-}
-
-export const postOrder = async (req, res) => {
-    let user_id = req.body.user_id
-    let order_date = req.body.order_date
-    if (!user_id || !order_date) {
-        return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-    try {
-        await createOrder(user_id, order_date)
-        return res.status(200).json({
-            massege: 'ok',
-        })
-    } catch (error) {
-        res.status(409).json({ message: error.message });
-    }
-
-}
-
-export const postOrderItem = async (req, res) => {
-    let order_id = req.body.order_id
-    let book_id = req.body.book_id
-    let quantity = req.body.quantity
-    if (!order_id || !book_id || !quantity) {
-        return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-    try {
-        await createOrderItem(order_id, book_id, quantity)
-        return res.status(200).json({
-            message: 'ok'
-        })
-    } catch (error) {
-        res.status(409).json({ message: error.message });
-    }
-
 }

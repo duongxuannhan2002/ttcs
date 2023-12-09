@@ -1,12 +1,7 @@
-import connection from '../config/database.js'
-import multer from 'multer'
-import fs from 'fs'
-import path from 'path'
-import { createBook,
-    updateBook,
-    deleteBook } from '../services/CRUDservice.js'
+import {createShoes, updateShoes, deleteShoes, readCheckBrand, createBrand} from '../services/CRUDservice.js'
 import uploadImageFireBase from './uploadImage.js'
-
+import multer from 'multer'
+import path from 'path'
 export const getHomePage = (req, res) => {
     res.send('<h1>Xin chào</h1>')
 }
@@ -48,120 +43,57 @@ export const imageFilter = function (req, file, cb) {
 
 export let upload = multer({ storage: storage, fileFilter: imageFilter });
 
-export const uploadFile = (req, res) => {
-    if (req.fileValidationError) {
-        return res.send(req.fileValidationError);
+export const checkBrand = async (name, country) => {
+    let results;
+    try {
+        results = await readCheckBrand(name, country)
+    } catch (error) {
+        return error
     }
-    else if (!req.file) {
-        return res.send('Please select an image to upload');
-    }
-
-    const file = req.file;
-    const imagePath = file.path;
-    const base64String = fs.readFileSync(imagePath, { encoding: 'base64' });
-    fs.unlink(imagePath, (err => {
-        if (err) console.log(err);
-    }));
-    return base64String
-
-
-}
-async function uploadImages(ev) {
-    const files = ev.target?.files;
-    if (files?.length > 0) {
-      setIsUploading(true);
-      const data = new FormData();
-      for (const file of files) {
-        data.append('file', file);
-      }
-      const res = await axios.post('/api/upload', data);
-      setImages(oldImages => {
-        return [...oldImages, ...res.data.links];
-      });
-      setIsUploading(false);
-    }
-  }
-  function updateImagesOrder(images) {
-    setImages(images);
-  }
-
-export const getUploadFile = (req, res) => {
-    res.render('upload.ejs')
-}
-
-export const checkAuthor = async (name, birth) => {
-    let [results, fields] = await connection.query(
-        `SELECT * FROM author
-        WHERE name = ? AND birth = ?`, [name, birth]
-    )
+    let resultss;
     if (results.length == 0) {
-        let [resultss, fields] = await connection.query(
-            ` INSERT INTO author(name,birth) 
-            values(?,?)
-            `, [name, birth],
-        )
-        return resultss.insertId
+        try {
+            resultss = await createBrand(name, country)
+            return resultss.insertId
+        } catch (error) {
+            return error
+        }
     } else {
         return results[0].id
     }
 }
 
-export const checkCategory = async (name) => {
-    let [results, fields] = await connection.query(
-        `SELECT * FROM category
-        WHERE name = ? `, [name]
-    )
-    if (results.length == 0) {
-        let [resultss, fields] = await connection.query(
-            ` INSERT INTO category(name) 
-            values(?)
-            `, [name],
-        )
-        return resultss.insertId
-    } else {
-        return results[0].id
-    }
-}
-
-export const postCreateBook = async (req, res) => {
-    // const imageString = await uploadFile(req, res)
+export const postCreateShoes = async (req, res) => {
     let imageString = await uploadImageFireBase(req.file)
     console.log('imageString', imageString)
     let name = req.body.name
-    let date = req.body.date
     let price = req.body.price
     let quantity = req.body.quantity
-    let lng = req.body.lng
-    let author = req.body.author
-    let birth_author = req.body.birth_author
-    let category = req.body.category
-    // let author_id = await checkAuthor(author, birth_author)
-    // let category_id = await checkCategory(category)
-    // await createBook(name, date, price, quantity, imageString, lng, author_id, category_id)
-    await createBook(name, date, price, quantity, imageString, lng, '1', '1')
-    res.send("success")
+    let brand = req.body.brand
+    let country = req.body.country
+    let discount = req.body.discount
+    let id_brand = await checkBrand(brand, country)
+    await createShoes(name, price, quantity, imageString, id_brand, discount,'0')
+    res.send(`<img src="${imageString}">`)
 }
 
-export const postUpdateBook = async (req, res) => {
-    const imageString = await uploadFile(req, res)
-    let id = req.body.id_book
+export const postUpdateShoes = async (req, res) => {
+    let imageString = await uploadImageFireBase(req.file)
+    console.log('imageString', imageString)
+    let id = req.body.id_shoes
     let name = req.body.name
-    let date = req.body.date
     let price = req.body.price
     let quantity = req.body.quantity
-    let lng = req.body.lng
-    let author = req.body.author
-    let birth_author = req.body.birth_author
-    let category = req.body.category
-    let author_id = await checkAuthor(author, birth_author)
-    let category_id = await checkCategory(category)
-    await updateBook(name, date, price, quantity, imageString, lng, author_id, category_id, id)
-    res.send("success")
+    let brand = req.body.brand
+    let country = req.body.country
+    let discount = req.body.discount
+    let id_brand = await checkBrand(brand, country)
+    await updateShoes(name, price, quantity, imageString, id_brand, discount,'0')
+    res.send(`<img src="${imageString}">`)
 }
 
-export const postDeleteBook = async (req, res) => {
-    let id = req.body.id_book
-    await deleteBook(id)
+export const postDeleteShoes = async (req, res) => {
+    let id = req.body.id_shoes
+    await deleteShoes(id)
     res.send('success')
 }
-
