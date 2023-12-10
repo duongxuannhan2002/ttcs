@@ -65,7 +65,7 @@ export const deleteShoes = async (id) => {
 export const createUser = async (name, email, pass, phoneNumber) => {
   return new Promise((resolve, reject) => {
     connection.query(`INSERT INTO users(name, email, pass, phone_number) 
-        values(?,?,?,?,?)
+        values(?,?,?,?)
         `, [name, email, pass, phoneNumber], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
