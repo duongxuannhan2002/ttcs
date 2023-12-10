@@ -6,17 +6,19 @@ import {
     putUser,
     delUser,
     getShoesByBrand,
-    getAccount,
-    get1Product}  from '../controllers/APIController.js'
+    get1Product,
+    getUser,
+    getToLogin}  from '../controllers/APIController.js'
 
 const router = express.Router();
 router.get('/get-shoes', getShoes)
 router.get('/get-shoes-by-brand', getShoesByBrand)
 router.get('/get-shoes-by-search', getShoesBySearch)
 router.get('/get-1-product', get1Product)
+router.get('/get-user', getUser)
 
 router.post('/post-user', postUser)
-router.post('/login', getAccount)
+router.post('/login', getToLogin)
 // router.post('/post-order', postOrder)
 // router.post('/post-order-item', postOrderItem)
 

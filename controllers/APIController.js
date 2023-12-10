@@ -39,9 +39,10 @@ export const postUser = async (req, res) => {
         })
     }
     try {
-        createUser(name, email, pass, address, phoneNumber)
+        await createUser(name, email, pass, address, phoneNumber)
         return res.status(200).json({
-            message: 'ok men'
+            message: 'ok men',
+            data: results
         })
     } catch (error) {
         res.status(409).json({ message: error.message });
@@ -49,7 +50,7 @@ export const postUser = async (req, res) => {
 
 }
 
-export const putUser = (req, res) =>{
+export const putUser = async (req, res) =>{
     let name = req.body.name
     let email = req.body.email
     let phoneNumber = req.body.phoneNumber
@@ -61,7 +62,7 @@ export const putUser = (req, res) =>{
         })
     }
     try {
-        updateUser(name, email, address, phoneNumber, id)
+        await updateUser(name, email, address, phoneNumber, id)
         return res.status(200).json({
             message: 'ok men'
         })
@@ -71,7 +72,7 @@ export const putUser = (req, res) =>{
 
 }
 
-export const delUser = (req, res) => {
+export const delUser = async (req, res) => {
     let id = req.body.id
     if (!id) {
         return res.status(200).json({
@@ -79,7 +80,7 @@ export const delUser = (req, res) => {
         })
     }
     try {
-        deleteUser(id)
+        await deleteUser(id)
         return res.status(200).json({
             message: 'ok men'
         })
@@ -162,7 +163,7 @@ export const get1Product = async (req, res) => {
     }
 }
 
-export const getAccount = async (req, res) => {
+export const getToLogin = async (req, res) => {
 
     if(!req.body.phoneNumber|| !req.body.pass){
         return res.status(200).json({
@@ -183,4 +184,6 @@ export const getAccount = async (req, res) => {
     }
 }
 
+export const getUser = (req,res) => {
 
+}
