@@ -88,7 +88,7 @@ export const postUpdateShoes = async (req, res) => {
     let country = req.body.country
     let discount = req.body.discount
     let id_brand = await checkBrand(brand, country)
-    await updateShoes(name, price, quantity, imageString, id_brand, discount,'0')
+    await updateShoes(name, price, quantity, imageString, id_brand, discount,'0',id)
     res.send(`<img src="${imageString}">`)
 }
 

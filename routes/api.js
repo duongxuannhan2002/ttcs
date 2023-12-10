@@ -2,19 +2,21 @@ import express, { Router } from "express";
 import {
     getShoes,
     postUser,
-    getBooksByLng,
-    getBooksBySearch,
+    getShoesBySearch,
     putUser,
     delUser,
-    getShoesByBrand}  from '../controllers/APIController.js'
+    getShoesByBrand,
+    getAccount,
+    get1Product}  from '../controllers/APIController.js'
 
 const router = express.Router();
 router.get('/get-shoes', getShoes)
-router.get('/get-book-by-lng', getBooksByLng)
 router.get('/get-shoes-by-brand', getShoesByBrand)
-router.get('/get-book-by-search',getBooksBySearch)
+router.get('/get-shoes-by-search', getShoesBySearch)
+router.get('/get-1-product', get1Product)
 
 router.post('/post-user', postUser)
+router.post('/login', getAccount)
 // router.post('/post-order', postOrder)
 // router.post('/post-order-item', postOrderItem)
 
