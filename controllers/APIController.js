@@ -32,17 +32,15 @@ export const postUser = async (req, res) => {
     let email = req.body.email
     let phoneNumber = req.body.phoneNumber
     let pass = req.body.pass
-    let address = req.body.address
-    if (!email || !name || !pass || !address || !phoneNumber) {
+    if (!email || !name || !pass ||!phoneNumber) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
     try {
-        await createUser(name, email, pass, address, phoneNumber)
+        await createUser(name, email, pass, phoneNumber)
         return res.status(200).json({
             message: 'ok men',
-            data: results
         })
     } catch (error) {
         res.status(409).json({ message: error.message });
@@ -54,15 +52,14 @@ export const putUser = async (req, res) =>{
     let name = req.body.name
     let email = req.body.email
     let phoneNumber = req.body.phoneNumber
-    let address = req.body.address
     let id = req.body.id
-    if (!email || !name || !address || !phoneNumber ||!id) {
+    if (!email || !name|| !phoneNumber ||!id) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
     try {
-        await updateUser(name, email, address, phoneNumber, id)
+        await updateUser(name, email, phoneNumber, id)
         return res.status(200).json({
             message: 'ok men'
         })

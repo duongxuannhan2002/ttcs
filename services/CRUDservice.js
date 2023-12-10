@@ -62,11 +62,11 @@ export const deleteShoes = async (id) => {
   });
 }
 
-export const createUser = async (name, email, pass, address, phoneNumber) => {
+export const createUser = async (name, email, pass, phoneNumber) => {
   return new Promise((resolve, reject) => {
-    connection.query(`INSERT INTO users(name, email, pass, address, phone_number) 
+    connection.query(`INSERT INTO users(name, email, pass, phone_number) 
         values(?,?,?,?,?)
-        `, [name, email, pass, address,phoneNumber], (error, results) => {
+        `, [name, email, pass, phoneNumber], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -78,11 +78,11 @@ export const createUser = async (name, email, pass, address, phoneNumber) => {
   });
 }
 
-export const updateUser = async (name, email, address, phoneNumber,id) => {
+export const updateUser = async (name, email, phoneNumber,id) => {
   return new Promise((resolve, reject) => {
     connection.query(`UPDATE users SET
-    name=?, email=?, address=?, phone_number=?
-    WHERE id=?`,[name,email,address,phoneNumber,id], (error,results) => {
+    name=?, email=?, phone_number=?
+    WHERE id=?`,[name,email,phoneNumber,id], (error,results) => {
       if (error) {
         console.log('Lỗi truy vấn: ',error);
         reject(error)
