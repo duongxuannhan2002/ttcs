@@ -42,7 +42,6 @@ export const postUser = async (req, res) => {
         await createUser(name, email, pass, address, phoneNumber)
         return res.status(200).json({
             message: 'ok men',
-            data: results
         })
     } catch (error) {
         res.status(409).json({ message: error.message });
