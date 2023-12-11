@@ -232,3 +232,16 @@ export const readSizeProduct = async (id) => {
     });
   })
 }
+
+export const checkPhoneNumber = async (phoneNumber) => {
+  return new Promise((resolve,reject) => {
+    connection.query(`select * from users where phone_number = ? `,[phoneNumber], (error,results) => {
+      if (error) {
+        console.error('Lỗi truy vấn: ',error);
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    } )
+  })
+}
