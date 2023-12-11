@@ -62,6 +62,20 @@ export const deleteShoes = async (id) => {
   });
 }
 
+export const readListUser = async() => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT * FROM users`, (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        reject(error);
+      } else {
+        console.log(results);
+        resolve(results);
+      }
+    });
+  });
+}
+
 export const createUser = async (name, email, pass, phoneNumber) => {
   return new Promise((resolve, reject) => {
     connection.query(`INSERT INTO users(name, email, pass, phone_number) 

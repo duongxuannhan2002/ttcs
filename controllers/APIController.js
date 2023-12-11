@@ -9,7 +9,8 @@ import {
     deleteUser,
     logIn,
     read1Product,
-    readSizeProduct
+    readSizeProduct,
+    readListUser
 } from '../services/CRUDservice.js'
 import  Jwt  from 'jsonwebtoken'
 import { response } from 'express'
@@ -181,6 +182,14 @@ export const getToLogin = async (req, res) => {
     }
 }
 
-export const getUser = (req,res) => {
-
+export const getUser = async (req,res) => {
+    try {
+        let results = await readListUser()
+        return res.status(200).json({
+            massege: 'ok',
+            data: results
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
 }
