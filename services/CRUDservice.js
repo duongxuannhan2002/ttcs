@@ -141,10 +141,10 @@ export const readListShoesByBrand = async (brand) => {
 
 export const readListShoesBySearch = async (key) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT product.*, brand.*
+    connection.query(`SELECT product.*, brand.name as brand
         FROM product
         JOIN brand ON product.id_brand = brand.id
-        WHERE brand.name = ? OR product.name = ?`, [key, key], (error, results) => {
+        WHERE LOWER(product.name) LIKE CONCAT('%', LOWER(?), '%');`, [key], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);

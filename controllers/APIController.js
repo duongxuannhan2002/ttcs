@@ -11,7 +11,9 @@ import {
     read1Product,
     readSizeProduct,
     readListUser,
-    checkPhoneNumber
+    checkPhoneNumber,
+    readListShoesBySearch,
+    readListShoesByBrand
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 import { response } from 'express'
@@ -127,7 +129,7 @@ export const getBooksByLng = async (req, res) => {
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
-
+    
 }
 
 export const getShoesByBrand = async (req, res) => {
@@ -209,5 +211,3 @@ export const getToLogin = async (req, res) => {
         res.status(409).json({ message: error.message });
     }
 }
-
-
