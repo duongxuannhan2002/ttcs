@@ -55,7 +55,7 @@ export const postUser = async (req, res) => {
         })
     }
 
-    await bcrypt.hash(req.body.pass, 10, function(err, hash) {
+    bcrypt.hash(req.body.pass, 10, await function(err, hash) {
         if (err) {
           console.error(err);
           return;
@@ -64,7 +64,7 @@ export const postUser = async (req, res) => {
         // Lưu trữ hash mật khẩu trong cơ sở dữ liệu
         pass = hash
       });
-      
+
     try {
         let results = await checkPhoneNumber(phoneNumber)
         connection.release;
