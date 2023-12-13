@@ -205,7 +205,9 @@ export const postToLogin = async (req, res) => {
                     data: results[0], token
                 })
             } else {
-              console.log('Password is incorrect');
+                return res.status(200).json({
+                    message: 'oh NOOOOOO'
+                })
             }
           });
     } catch (error) {
