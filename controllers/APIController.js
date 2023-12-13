@@ -64,9 +64,7 @@ export const postUser = async (req, res) => {
         // Lưu trữ hash mật khẩu trong cơ sở dữ liệu
         pass = hash
       });
-      return res.status(200).json({
-        message: pass
-    })
+      
     try {
         let results = await checkPhoneNumber(phoneNumber)
         connection.release;
