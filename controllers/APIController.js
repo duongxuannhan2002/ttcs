@@ -74,6 +74,7 @@ export const postUser = async (req, res) => {
             })
         } else {
             try {
+                console.log(pass)
                 await createUser(name, email, pass, phoneNumber)
                 connection.release;
                 return res.status(200).json({
