@@ -203,7 +203,7 @@ export const postToLogin = async (req, res) => {
     try {
         let results = await logIn(req.body.phoneNumber)
         connection.release;
-        bcrypt.compare(req.body.pass, results[0].pass, function(err, result) {
+        bcrypt.compare(req.body.pass, results[0].pass, await function(err, result) {
             if (err) {
               console.error(err);
               return;
