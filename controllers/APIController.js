@@ -1,11 +1,9 @@
 import uploadImageFireBase from './uploadImage.js'
+import bcrypt from 'bcrypt'
 import {
     readListShoes,
     createUser,
     updateUser,
-    createShoes,
-    updateShoes,
-    deleteShoes,
     deleteUser,
     logIn,
     read1Product,
@@ -13,10 +11,10 @@ import {
     readListUser,
     checkPhoneNumber,
     readListShoesBySearch,
-    readListShoesByBrand
+    readListShoesByBrand,
+    readListProductBought
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
-import { response } from 'express'
 
 export const getShoes = async (req, res) => {
     try {
@@ -47,12 +45,22 @@ export const postUser = async (req, res) => {
     let name = req.body.name
     let email = req.body.email
     let phoneNumber = req.body.phoneNumber
-    let pass = req.body.pass
-    if (!email || !name || !pass || !phoneNumber) {
+    let pass
+    if (!email || !name || !req.body.pass || !phoneNumber) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
+
+    bcrypt.hash(req.body.pass, 10, function(err, hash) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+      
+        // Lưu trữ hash mật khẩu trong cơ sở dữ liệu
+        pass = hash
+      });
 
     try {
         let results = await checkPhoneNumber(phoneNumber)
@@ -98,7 +106,7 @@ export const putUser = async (req, res) => {
 }
 
 export const delUser = async (req, res) => {
-    let id = req.body.id
+    let id = req.params.id
     if (!id) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -112,24 +120,6 @@ export const delUser = async (req, res) => {
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
-}
-
-export const getBooksByLng = async (req, res) => {
-    if (!req.body.lng) {
-        return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-    try {
-        let results = await readListBooksByLng(req.body.lng)
-        return res.status(200).json({
-            massege: 'ok',
-            data: results
-        })
-    } catch (error) {
-        res.status(409).json({ message: error.message });
-    }
-    
 }
 
 export const getShoesByBrand = async (req, res) => {
@@ -150,14 +140,14 @@ export const getShoesByBrand = async (req, res) => {
 }
 
 export const getShoesBySearch = async (req, res) => {
-    if (!req.body.key) {
+    if (!req.query.key) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
 
     try {
-        let results = await readListShoesBySearch(req.body.key)
+        let results = await readListShoesBySearch(req.query.key)
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -191,7 +181,7 @@ export const get1Product = async (req, res) => {
     }
 }
 
-export const getToLogin = async (req, res) => {
+export const postToLogin = async (req, res) => {
 
     if (!req.body.phoneNumber || !req.body.pass) {
         return res.status(200).json({
@@ -199,13 +189,41 @@ export const getToLogin = async (req, res) => {
         })
     }
     try {
-        let results = await logIn(req.body.phoneNumber, req.body.pass)
-        let token = Jwt.sign({ id: results[0].id }, '05092002');
-        Jwt.verify(token, '05092002', function (err, decoded) {
-            console.log('a', decoded) // bar
-        });
+        let results = await logIn(req.body.phoneNumber)
+        bcrypt.compare(req.body.pass, results[0].pass, function(err, result) {
+            if (err) {
+              console.error(err);
+              return;
+            }
+          
+            if (result) {
+                let token = Jwt.sign({ id: results[0].id }, '05092002');
+                Jwt.verify(token, '05092002', function (err, decoded) {
+                    console.log('a', decoded) // bar
+                });
+                return res.status(200).json({
+                    data: results[0], token
+                })
+            } else {
+              console.log('Password is incorrect');
+            }
+          });
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
+}
+
+export const getProductBought = async (req,res) => {
+    if (!req.query.id){
         return res.status(200).json({
-            data: results[0], token
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        let results = await readListProductBought(req.query.id)
+        return res.status(200).json({
+            massege: 'ok',
+            data: results
         })
     } catch (error) {
         res.status(409).json({ message: error.message });

@@ -186,9 +186,9 @@ export const createBrand = async (name, country) => {
   });
 }
 
-export const logIn = async (phoneNumber, pass) => {
+export const logIn = async (phoneNumber) => {
   return new Promise((resolve,reject) => {
-    connection.query(`select id, phone_number, name from users where phone_number = ? and pass = ?`,[phoneNumber, pass], (error, results) => {
+    connection.query(`select id, phone_number, name, pass from users where phone_number = ?`,[phoneNumber], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -236,6 +236,23 @@ export const readSizeProduct = async (id) => {
 export const checkPhoneNumber = async (phoneNumber) => {
   return new Promise((resolve,reject) => {
     connection.query(`select * from users where phone_number = ? `,[phoneNumber], (error,results) => {
+      if (error) {
+        console.error('Lỗi truy vấn: ',error);
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    } )
+  })
+}
+
+export const readListProductBought = async (id_user) => {
+  return new Promise((resolve,reject) => {
+    connection.query(`SELECT product.name, orders.order_date, orders.address, orders.phone_number 
+    FROM order_item 
+    JOIN orders ON order_item.id_order=orders.id 
+    JOIN product ON order_item.id_product=product.id 
+    WHERE orders.id_user=?;`,[id_user], (error,results) => {
       if (error) {
         console.error('Lỗi truy vấn: ',error);
         reject(error);

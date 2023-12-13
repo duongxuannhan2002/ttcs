@@ -17,7 +17,6 @@ router.get('/add', getAdminAdd)
 router.get('/update', getAdminUpdate)
 router.get('/delete', getAdminDelete)
 
-
 router.post('/create-shoes',upload.single('image'), postCreateShoes)
 router.post('/update-shoes',upload.single('image'), postUpdateShoes)
 router.post('/delete-shoes',postDeleteShoes)
