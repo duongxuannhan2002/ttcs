@@ -1,4 +1,5 @@
 import uploadImageFireBase from './uploadImage.js'
+import connection from '../config/database.js'
 import bcrypt from 'bcrypt'
 import {
     readListShoes,
@@ -18,7 +19,8 @@ import Jwt from 'jsonwebtoken'
 
 export const getShoes = async (req, res) => {
     try {
-        let results = await readListShoes()
+        let results = await readListShoes();
+        connection.release;
         console.log('a', results)
         return res.status(200).json({
             massege: 'ok',
@@ -32,6 +34,7 @@ export const getShoes = async (req, res) => {
 export const getUser = async (req, res) => {
     try {
         let results = await readListUser()
+        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -64,6 +67,7 @@ export const postUser = async (req, res) => {
 
     try {
         let results = await checkPhoneNumber(phoneNumber)
+        connection.release;
         if (results.length > 0) {
             return res.status(200).json({
                 message: 'Số điện thoại đã được đăng ký'
@@ -71,6 +75,7 @@ export const postUser = async (req, res) => {
         } else {
             try {
                 await createUser(name, email, pass, phoneNumber)
+                connection.release;
                 return res.status(200).json({
                     message: 'ok men',
                 })
@@ -95,7 +100,8 @@ export const putUser = async (req, res) => {
     }
 
     try {
-        await updateUser(name, email, phoneNumber, id)
+        await updateUser(name, email, phoneNumber, id);
+        connection.release;
         return res.status(200).json({
             message: 'ok men'
         })
@@ -114,6 +120,7 @@ export const delUser = async (req, res) => {
     }
     try {
         await deleteUser(id)
+        connection.release;
         return res.status(200).json({
             message: 'ok men'
         })
@@ -130,6 +137,7 @@ export const getShoesByBrand = async (req, res) => {
     }
     try {
         let results = await readListShoesByBrand(req.body.brand)
+        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -148,6 +156,7 @@ export const getShoesBySearch = async (req, res) => {
 
     try {
         let results = await readListShoesBySearch(req.query.key)
+        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -167,7 +176,9 @@ export const get1Product = async (req, res) => {
 
     try {
         let results1 = await read1Product(req.query.id)
+        connection.release;
         let results2 = await readSizeProduct(req.query.id)
+        connection.release;
 
         const sizes = results2.map(item => item.size);
         results1[0].size = sizes.join(',');
@@ -190,6 +201,7 @@ export const postToLogin = async (req, res) => {
     }
     try {
         let results = await logIn(req.body.phoneNumber)
+        connection.release;
         bcrypt.compare(req.body.pass, results[0].pass, function(err, result) {
             if (err) {
               console.error(err);
@@ -206,7 +218,7 @@ export const postToLogin = async (req, res) => {
                 })
             } else {
                 return res.status(200).json({
-                    message: 'oh NOOOOOO'
+                    message: 'Tài khoản hoặc mật khẩu không chính xác'
                 })
             }
           });
@@ -223,6 +235,7 @@ export const getProductBought = async (req,res) => {
     }
     try {
         let results = await readListProductBought(req.query.id)
+        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
