@@ -55,7 +55,7 @@ export const postUser = async (req, res) => {
         })
     }
 
-    bcrypt.hash(req.body.pass, 10, function(err, hash) {
+    await bcrypt.hash(req.body.pass, 10, function(err, hash) {
         if (err) {
           console.error(err);
           return;
