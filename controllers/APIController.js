@@ -55,16 +55,17 @@ export const postUser = async (req, res) => {
         })
     }
 
-    bcrypt.hash(req.body.pass, 10, await function(err, hash) {
-        if (err) {
-          console.error(err);
-          return;
-        }
-      
-        // Lưu trữ hash mật khẩu trong cơ sở dữ liệu
-        pass = hash
-      });
+    while (pass == null) {
+        bcrypt.hash(req.body.pass, 10, await function (err, hash) {
+            if (err) {
+                console.error(err);
+                return;
+            }
 
+            // Lưu trữ hash mật khẩu trong cơ sở dữ liệu
+            pass = hash
+        });
+    }
     try {
         let results = await checkPhoneNumber(phoneNumber)
         connection.release;
@@ -203,12 +204,12 @@ export const postToLogin = async (req, res) => {
     try {
         let results = await logIn(req.body.phoneNumber)
         connection.release;
-        bcrypt.compare(req.body.pass, results[0].pass, await function(err, result) {
+        bcrypt.compare(req.body.pass, results[0].pass, await function (err, result) {
             if (err) {
-              console.error(err);
-              return;
+                console.error(err);
+                return;
             }
-          
+
             if (result) {
                 let token = Jwt.sign({ id: results[0].id }, '05092002');
                 Jwt.verify(token, '05092002', function (err, decoded) {
@@ -222,14 +223,14 @@ export const postToLogin = async (req, res) => {
                     message: 'Tài khoản hoặc mật khẩu không chính xác'
                 })
             }
-          });
+        });
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
 }
 
-export const getProductBought = async (req,res) => {
-    if (!req.query.id){
+export const getProductBought = async (req, res) => {
+    if (!req.query.id) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
