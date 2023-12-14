@@ -186,9 +186,9 @@ export const createBrand = async (name, country) => {
   });
 }
 
-export const logIn = async (phoneNumber) => {
+export const logIn = async (phoneNumber,pass) => {
   return new Promise((resolve,reject) => {
-    connection.query(`select id, phone_number, name, pass from users where phone_number = ?`,[phoneNumber], (error, results) => {
+    connection.query(`select id, phone_number, name, pass from users where phone_number = ? and pass = ?`,[phoneNumber,pass], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);

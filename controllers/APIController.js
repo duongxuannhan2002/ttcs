@@ -54,36 +54,29 @@ export const postUser = async (req, res) => {
             message: 'oh NOOOOOO'
         })
     }
-    bcrypt.hash(pass, 5, async function (err, hash) {
-        if (err) {
-            console.error(err);
-            return;
-        }
 
-        // Lưu trữ hash mật khẩu trong cơ sở dữ liệu
-        try {
-            let results = await checkPhoneNumber(phoneNumber)
-            connection.release;
-            if (results.length > 0) {
+    try {
+        let results = await checkPhoneNumber(phoneNumber)
+        connection.release;
+        if (results.length > 0) {
+            return res.status(200).json({
+                message: 'Số điện thoại đã được đăng ký'
+            })
+        } else {
+            try {
+                console.log(pass)
+                await createUser(name, email, pass, phoneNumber)
+                connection.release;
                 return res.status(200).json({
-                    message: 'Số điện thoại đã được đăng ký'
+                    message: 'ok men',
                 })
-            } else {
-                try {
-                    console.log(pass)
-                    await createUser(name, email, hash, phoneNumber)
-                    connection.release;
-                    return res.status(200).json({
-                        message: 'ok men',
-                    })
-                } catch (error) {
-                    res.status(409).json({ message: error.message });
-                }
+            } catch (error) {
+                res.status(409).json({ message: error.message });
             }
-        } catch (error) {
-            res.status(409).json({ message: error.message });
         }
-    });
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
 }
 
 export const putUser = async (req, res) => {
@@ -198,28 +191,21 @@ export const postToLogin = async (req, res) => {
         })
     }
     try {
-        let results = await logIn(req.body.phoneNumber)
-        connection.release;
-        bcrypt.compare(req.body.pass, results[0].pass, await function (err, result) {
-            if (err) {
-                console.error(err);
-                return;
-            }
+        let results = await logIn(req.body.phoneNumber||req.body.pass)
 
-            if (result) {
-                let token = Jwt.sign({ id: results[0].id }, '05092002');
-                Jwt.verify(token, '05092002', function (err, decoded) {
-                    console.log('a', decoded) // bar
-                });
-                return res.status(200).json({
-                    data: results[0], token
-                })
-            } else {
-                return res.status(200).json({
-                    message: 'Tài khoản hoặc mật khẩu không chính xác'
-                })
-            }
-        });
+        if (results) {
+            let token = Jwt.sign({ id: results[0].id }, '05092002');
+            Jwt.verify(token, '05092002', function (err, decoded) {
+                console.log('a', decoded) // bar
+            });
+            return res.status(200).json({
+                data: results[0], token
+            })
+        } else {
+            return res.status(200).json({
+                message: 'Tài khoản hoặc mật khẩu không chính xác'
+            })
+        }
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
