@@ -1,6 +1,5 @@
 import uploadImageFireBase from './uploadImage.js'
 import connection from '../config/database.js'
-import bcrypt from 'bcrypt'
 import {
     readListShoes,
     createUser,
@@ -191,8 +190,7 @@ export const postToLogin = async (req, res) => {
         })
     }
     try {
-        let results = await logIn(req.body.phoneNumber||req.body.pass)
-
+        let results = await logIn(req.body.phoneNumber,req.body.pass)
         if (results) {
             let token = Jwt.sign({ id: results[0].id }, '05092002');
             Jwt.verify(token, '05092002', function (err, decoded) {
