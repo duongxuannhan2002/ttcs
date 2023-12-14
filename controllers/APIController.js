@@ -56,7 +56,7 @@ export const postUser = async (req, res) => {
     }
 
     while (pass == null) {
-        bcrypt.hash(req.body.pass, 5, await function (err, hash) {
+        bcrypt.hash(req.body.pass, 5, async function (err, hash) {
             if (err) {
                 console.error(err);
                 return;
@@ -64,29 +64,29 @@ export const postUser = async (req, res) => {
 
             // Lưu trữ hash mật khẩu trong cơ sở dữ liệu
             pass = hash
-        });
-    }
-    try {
-        let results = await checkPhoneNumber(phoneNumber)
-        connection.release;
-        if (results.length > 0) {
-            return res.status(200).json({
-                message: 'Số điện thoại đã được đăng ký'
-            })
-        } else {
             try {
-                console.log(pass)
-                await createUser(name, email, pass, phoneNumber)
+                let results = await checkPhoneNumber(phoneNumber)
                 connection.release;
-                return res.status(200).json({
-                    message: 'ok men',
-                })
+                if (results.length > 0) {
+                    return res.status(200).json({
+                        message: 'Số điện thoại đã được đăng ký'
+                    })
+                } else {
+                    try {
+                        console.log(pass)
+                        await createUser(name, email, pass, phoneNumber)
+                        connection.release;
+                        return res.status(200).json({
+                            message: 'ok men',
+                        })
+                    } catch (error) {
+                        res.status(409).json({ message: error.message });
+                    }
+                }
             } catch (error) {
                 res.status(409).json({ message: error.message });
             }
-        }
-    } catch (error) {
-        res.status(409).json({ message: error.message });
+        });
     }
 }
 
