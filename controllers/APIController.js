@@ -56,7 +56,7 @@ export const postUser = async (req, res) => {
     }
 
     while (pass == null) {
-        bcrypt.hash(req.body.pass, 10, await function (err, hash) {
+        bcrypt.hash(req.body.pass, 5, await function (err, hash) {
             if (err) {
                 console.error(err);
                 return;
