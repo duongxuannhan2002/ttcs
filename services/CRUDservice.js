@@ -2,8 +2,7 @@ import connection from '../config/database.js'
 
 export const readListShoes = async () => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT product.*, brand.name As name_brand, brand.country FROM product
-    JOIN brand ON product.id_brand= brand.id`, (error, results) => {
+    connection.query(`SELECT * FROM product`, (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -15,11 +14,11 @@ export const readListShoes = async () => {
   });
 }
 
-export const createShoes = async (name, price, quantity, imageString, id_brand, discount, sold) => {
+export const createShoes = async (name, price, quantity, imageString, brand, discount, sold) => {
   return new Promise((resolve, reject) => {
-    connection.query(` INSERT INTO product(name, price, quantity, image, id_brand, discount, sold) 
+    connection.query(` INSERT INTO product(name, price, quantity, image, brand, discount, sold) 
         values(?,?,?,?,?,?,?)
-        `, [name, price, quantity, imageString, id_brand, discount, sold], (error, results) => {
+        `, [name, price, quantity, imageString, brand, discount, sold], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -31,12 +30,12 @@ export const createShoes = async (name, price, quantity, imageString, id_brand, 
   });
 }
 
-export const updateShoes = async (name, price, quantity, imageString, id_brand, discount, sold, id) => {
+export const updateShoes = async (name, price, quantity, imageString, brand, discount, sold, id) => {
   return new Promise((resolve, reject) => {
     connection.query(` UPDATE product SET
-        name=?, price=?, quantity=?, image=?, id_brand=?, discount=?, sold=?
+        name=?, price=?, quantity=?, image=?, brand=?, discount=?, sold=?
         Where id=?    
-        `, [name, price, quantity, imageString, id_brand, discount, sold, id], (error, results) => {
+        `, [name, price, quantity, imageString, brand, discount, sold, id], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -125,9 +124,8 @@ export const deleteUser = async (id) => {
 
 export const readListShoesByBrand = async (brand) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT product.*, brand.* FROM product
-    JOIN brand ON product.id_brand= brand.id
-    WHERE brand.name = ?`, [brand], (error, results) => {
+    connection.query(`SELECT * FROM product
+    WHERE brand= ?`, [brand], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -141,10 +139,8 @@ export const readListShoesByBrand = async (brand) => {
 
 export const readListShoesBySearch = async (key) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT product.*, brand.name as brand
-        FROM product
-        JOIN brand ON product.id_brand = brand.id
-        WHERE LOWER(product.name) LIKE CONCAT('%', LOWER(?), '%');`, [key], (error, results) => {
+    connection.query(`SELECT * FROM product
+        WHERE LOWER(name) LIKE CONCAT('%', LOWER(?), '%');`, [key], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);
         reject(error);
@@ -156,35 +152,7 @@ export const readListShoesBySearch = async (key) => {
   });
 }
 
-export const readCheckBrand = async (name, country) => {
-  return new Promise((resolve, reject) => {
-    connection.query(`SELECT * FROM brand
-    WHERE name = ? AND country = ?`, [name, country], (error, results) => {
-      if (error) {
-        console.error('Lỗi truy vấn:', error);
-        reject(error);
-      } else {
-        // console.log(results);
-        resolve(results);
-      }
-    });
-  });
-}
 
-export const createBrand = async (name, country) => {
-  return new Promise((resolve, reject) => {
-    connection.query(`INSERT INTO brand(name,country) 
-    values(?,?)`,[name, country], (error, results) => {
-      if (error) {
-        console.error('Lỗi truy vấn:', error);
-        reject(error);
-      } else {
-        // console.log(results);
-        resolve(results);
-      }
-    });
-  });
-}
 
 export const logIn = async (phoneNumber,pass) => {
   return new Promise((resolve,reject) => {
@@ -202,8 +170,7 @@ export const logIn = async (phoneNumber,pass) => {
 
 export const read1Product = async (id) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT product.*, brand.name As name_brand FROM product
-    JOIN brand ON product.id_brand= brand.id
+    connection.query(`SELECT product.* FROM product
     WHERE product.id = ?`,[id], (error, results) => {
       if (error) {
         console.error('Lỗi truy vấn:', error);

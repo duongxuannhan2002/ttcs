@@ -1,4 +1,4 @@
-import {createShoes, updateShoes, deleteShoes, readCheckBrand, createBrand} from '../services/CRUDservice.js'
+import {createShoes, updateShoes, deleteShoes} from '../services/CRUDservice.js'
 import uploadImageFireBase from './uploadImage.js'
 import multer from 'multer'
 import path from 'path'
@@ -43,25 +43,6 @@ export const imageFilter = function (req, file, cb) {
 
 export let upload = multer({ storage: storage, fileFilter: imageFilter });
 
-export const checkBrand = async (name, country) => {
-    let results;
-    try {
-        results = await readCheckBrand(name, country)
-    } catch (error) {
-        return error
-    }
-    let resultss;
-    if (results.length == 0) {
-        try {
-            resultss = await createBrand(name, country)
-            return resultss.insertId
-        } catch (error) {
-            return error
-        }
-    } else {
-        return results[0].id
-    }
-}
 
 export const postCreateShoes = async (req, res) => {
     let imageString = await uploadImageFireBase(req.file)
@@ -70,10 +51,8 @@ export const postCreateShoes = async (req, res) => {
     let price = req.body.price
     let quantity = req.body.quantity
     let brand = req.body.brand
-    let country = req.body.country
     let discount = req.body.discount
-    let id_brand = await checkBrand(brand, country)
-    await createShoes(name, price, quantity, imageString, id_brand, discount,'0')
+    await createShoes(name, price, quantity, imageString, brand, discount,'0')
     res.send(`<img src="${imageString}">`)
 }
 
@@ -85,10 +64,8 @@ export const postUpdateShoes = async (req, res) => {
     let price = req.body.price
     let quantity = req.body.quantity
     let brand = req.body.brand
-    let country = req.body.country
     let discount = req.body.discount
-    let id_brand = await checkBrand(brand, country)
-    await updateShoes(name, price, quantity, imageString, id_brand, discount,'0',id)
+    await updateShoes(name, price, quantity, imageString, discount,'0',id)
     res.send(`<img src="${imageString}">`)
 }
 
