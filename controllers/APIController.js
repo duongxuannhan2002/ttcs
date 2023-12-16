@@ -12,7 +12,13 @@ import {
     checkPhoneNumber,
     readListShoesBySearch,
     readListShoesByBrand,
-    readListProductBought
+    readListProductBought,
+    readCart,
+    checkProductInCart,
+    createProductIntoCart,
+    delProductInCart,
+    delCart,
+    updateProductInCart
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 
@@ -225,4 +231,105 @@ export const getProductBought = async (req, res) => {
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
+}
+
+export const getCart = async (req, res) => {
+    if(!req.query.id) {
+        returnres.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        let results = await readCart(req.query.id)
+        connection.release;
+        return res.status(200).json({
+            massege: 'ok',
+            data: results
+        })
+    }catch(error){
+        res.status(409).json({ message: error.message });
+    }
+}
+
+export const postProductToCart = async (req,res) => {
+    let id_user = req.body.id_user
+    let id_product = req.body.id_product
+    let quantity = req.body.quantity
+    if ( !id_user|| !id_product || !quantity){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+
+    try{
+        let results =  await checkProductInCart(id_user,id_product)
+        connection.release;
+        if(results.length>0){
+            return res.status(200).json({
+                massege: 'Sản phẩm đã có trong giỏ hàng',
+            })
+        }else{
+            await createProductIntoCart(id_user, id_product, quantity)
+            connection.release;
+            return res.status(200).json({
+                massege: 'OK',
+            })
+        }
+    }catch(error){
+        return res.status(409).json({ message: error.message });
+    }
+}
+
+export const dropProductInCart = async (req, res) => {
+    let id_user = req.query.id_user
+    let id_product = req.query.id_product
+    if(!id_user||!id_product){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+
+    try {
+        await delProductInCart(id_user,id_product);
+        connection.release;
+        return res.status(200).json({
+            massege: 'OK',
+        })
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
+}
+
+export const dropCart = async (req, res) => {
+    let id_user = req.params.id
+    if(!id_user){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+
+    try {
+        await delCart(id_user)
+        connection.release;
+        return res.status(200).json({
+            massege: 'OK',
+        })
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
+}
+
+export const putCart = async (req, res) => {
+    let listItem = req.body
+    listItem.forEach( async element =>  {
+        try {
+            await updateProductInCart(listItem.id_user,listItem.id_product,listItem.quantity);
+            connection.release;
+        } catch (error) {
+            return res.status(409).json({ message: error.message });
+        }
+    });
+    return res.status(200).json({
+        massege: 'OK',
+    })
 }
