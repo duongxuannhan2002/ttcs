@@ -18,14 +18,14 @@ import {
     createProductIntoCart,
     delProductInCart,
     delCart,
-    updateProductInCart
+    updateProductInCart,
+    checkIdSize
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 
 export const getShoes = async (req, res) => {
     try {
         let results = await readListShoes();
-        connection.release;
         console.log('a', results)
         return res.status(200).json({
             massege: 'ok',
@@ -39,7 +39,6 @@ export const getShoes = async (req, res) => {
 export const getUser = async (req, res) => {
     try {
         let results = await readListUser()
-        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -62,7 +61,6 @@ export const postUser = async (req, res) => {
 
     try {
         let results = await checkPhoneNumber(phoneNumber)
-        connection.release;
         if (results.length > 0) {
             return res.status(200).json({
                 message: 'Số điện thoại đã được đăng ký'
@@ -71,7 +69,6 @@ export const postUser = async (req, res) => {
             try {
                 console.log(pass)
                 await createUser(name, email, pass, phoneNumber)
-                connection.release;
                 return res.status(200).json({
                     message: 'ok men',
                 })
@@ -97,7 +94,6 @@ export const putUser = async (req, res) => {
 
     try {
         await updateUser(name, email, phoneNumber, id);
-        connection.release;
         return res.status(200).json({
             message: 'ok men'
         })
@@ -108,7 +104,7 @@ export const putUser = async (req, res) => {
 }
 
 export const delUser = async (req, res) => {
-    let id = req.params.id
+    let id = req.query.id
     if (!id) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -116,7 +112,6 @@ export const delUser = async (req, res) => {
     }
     try {
         await deleteUser(id)
-        connection.release;
         return res.status(200).json({
             message: 'ok men'
         })
@@ -133,7 +128,6 @@ export const getShoesByBrand = async (req, res) => {
     }
     try {
         let results = await readListShoesByBrand(req.body.brand)
-        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -152,7 +146,6 @@ export const getShoesBySearch = async (req, res) => {
 
     try {
         let results = await readListShoesBySearch(req.query.key)
-        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -172,9 +165,7 @@ export const get1Product = async (req, res) => {
 
     try {
         let results1 = await read1Product(req.query.id)
-        connection.release;
         let results2 = await readSizeProduct(req.query.id)
-        connection.release;
 
         const sizes = results2.map(item => item.size);
         results1[0].size = sizes.join(',');
@@ -196,7 +187,7 @@ export const postToLogin = async (req, res) => {
         })
     }
     try {
-        let results = await logIn(req.body.phoneNumber,req.body.pass)
+        let results = await logIn(req.body.phoneNumber, req.body.pass)
         if (results) {
             let token = Jwt.sign({ id: results[0].id }, '05092002');
             Jwt.verify(token, '05092002', function (err, decoded) {
@@ -223,7 +214,6 @@ export const getProductBought = async (req, res) => {
     }
     try {
         let results = await readListProductBought(req.query.id)
-        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -234,64 +224,64 @@ export const getProductBought = async (req, res) => {
 }
 
 export const getCart = async (req, res) => {
-    if(!req.query.id) {
+    if (!req.query.id) {
         returnres.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
     try {
         let results = await readCart(req.query.id)
-        connection.release;
         return res.status(200).json({
             massege: 'ok',
             data: results
         })
-    }catch(error){
+    } catch (error) {
         res.status(409).json({ message: error.message });
     }
 }
 
-export const postProductToCart = async (req,res) => {
+export const postProductToCart = async (req, res) => {
     let id_user = req.body.id_user
     let id_product = req.body.id_product
     let quantity = req.body.quantity
-    if ( !id_user|| !id_product || !quantity){
-        return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-
-    try{
-        let results =  await checkProductInCart(id_user,id_product)
-        connection.release;
-        if(results.length>0){
-            return res.status(200).json({
-                massege: 'Sản phẩm đã có trong giỏ hàng',
-            })
-        }else{
-            await createProductIntoCart(id_user, id_product, quantity)
-            connection.release;
-            return res.status(200).json({
-                massege: 'OK',
-            })
-        }
-    }catch(error){
-        return res.status(409).json({ message: error.message });
-    }
-}
-
-export const dropProductInCart = async (req, res) => {
-    let id_user = req.query.id_user
-    let id_product = req.query.id_product
-    if(!id_user||!id_product){
+    let size = req.body.size
+    if (!id_user || !id_product || !quantity || !size) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
 
     try {
-        await delProductInCart(id_user,id_product);
-        connection.release;
+        let id_size = await checkIdSize(size)
+        let results = await checkProductInCart(id_user, id_product, id_size[0].id)
+        if (results.length > 0) {
+            return res.status(200).json({
+                massege: 'Sản phẩm đã có trong giỏ hàng',
+            })
+        } else {
+            await createProductIntoCart(id_user, id_product, quantity, id_size[0].id)
+            return res.status(200).json({
+                massege: 'OK',
+            })
+        }
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
+}
+
+export const dropProductInCart = async (req, res) => {
+    let id_user = req.body.id_user
+    let id_product = req.body.id_product
+    let size = req.body.size
+    if (!id_user || !id_product || !size) {
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+
+    try {
+        let id_size = await checkIdSize(size)
+        await delProductInCart(id_user, id_product, id_size[0].id);
         return res.status(200).json({
             massege: 'OK',
         })
@@ -301,8 +291,8 @@ export const dropProductInCart = async (req, res) => {
 }
 
 export const dropCart = async (req, res) => {
-    let id_user = req.params.id
-    if(!id_user){
+    let id_user = req.query.id
+    if (!id_user) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
@@ -310,7 +300,6 @@ export const dropCart = async (req, res) => {
 
     try {
         await delCart(id_user)
-        connection.release;
         return res.status(200).json({
             massege: 'OK',
         })
@@ -320,11 +309,11 @@ export const dropCart = async (req, res) => {
 }
 
 export const putCart = async (req, res) => {
-    let listItem = req.body
-    listItem.forEach( async element =>  {
+    console.log('>>>>>>>', listItem)
+    listItem.forEach(async element => {
         try {
-            await updateProductInCart(listItem.id_user,listItem.id_product,listItem.quantity);
-            connection.release;
+            let id_size = await checkIdSize(element.size)
+            await updateProductInCart(element.id_user, element.id_product, element.quantity, id_size[0].id);
         } catch (error) {
             return res.status(409).json({ message: error.message });
         }

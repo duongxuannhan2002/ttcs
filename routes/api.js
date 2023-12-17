@@ -36,5 +36,5 @@ router.put('/put-cart',putCart)
 
 router.delete('/delete-user/:id', delUser)
 router.delete('/delete-product-in-cart',dropProductInCart)
-router.delete('/delete-cart/:id',dropCart)
+router.delete('/delete-cart',dropCart)
 export default router
