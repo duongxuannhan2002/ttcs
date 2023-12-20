@@ -19,7 +19,8 @@ import {
     delProductInCart,
     delCart,
     updateProductInCart,
-    checkIdSize
+    checkIdSize,
+    readQuantity
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 
@@ -309,7 +310,7 @@ export const dropCart = async (req, res) => {
 }
 
 export const putCart = async (req, res) => {
-    console.log('>>>>>>>', listItem)
+    let listItem = req.body
     listItem.forEach(async element => {
         try {
             let id_size = await checkIdSize(element.size)
@@ -321,4 +322,23 @@ export const putCart = async (req, res) => {
     return res.status(200).json({
         massege: 'OK',
     })
+}
+
+export const getQuantity = async (req, res) => {
+    let id_product = req.query.id
+    let size = req.body.size
+    if(!id_product||!size){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        results = await readQuantity(id, size)
+        return res.status(200).json({
+            massege: 'OK',
+            data: results
+        })
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
 }

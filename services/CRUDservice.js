@@ -503,3 +503,25 @@ export const checkIdSize = async (size) => {
     })
   })
 }
+export const readQuantity = async(id_product, size) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`SELECT quantity from size_product
+        JOIN size ON size.id = size_product.id_size
+        WHERE size.vl = ? AND size_product.id_product = ?`, [size,id_product], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
