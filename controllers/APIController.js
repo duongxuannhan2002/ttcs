@@ -244,9 +244,8 @@ export const getCart = async (req, res) => {
 export const postProductToCart = async (req, res) => {
     let id_user = req.body.id_user
     let id_product = req.body.id_product
-    let quantity = req.body.quantity
     let size = req.body.size
-    if (!id_user || !id_product || !quantity || !size) {
+    if (!id_user || !id_product || !size) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
@@ -260,7 +259,7 @@ export const postProductToCart = async (req, res) => {
                 massege: 'Sản phẩm đã có trong giỏ hàng',
             })
         } else {
-            await createProductIntoCart(id_user, id_product, quantity, id_size[0].id)
+            await createProductIntoCart(id_user, id_product, id_size[0].id)
             return res.status(200).json({
                 massege: 'OK',
             })
