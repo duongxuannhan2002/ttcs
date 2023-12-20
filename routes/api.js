@@ -14,7 +14,8 @@ import {
     postProductToCart,
     dropProductInCart,
     dropCart,
-    putCart}  from '../controllers/APIController.js'
+    putCart,
+    getQuantity}  from '../controllers/APIController.js'
 
 const router = express.Router();
 router.get('/get-shoes', getShoes)
@@ -24,7 +25,7 @@ router.get('/get-1-product', get1Product)
 router.get('/get-user', getUser)
 router.get('/get-product-bought', getProductBought)
 router.get('/get-cart', getCart)
-router.get('/get-quantity')
+router.get('/get-quantity',getQuantity)
 
 router.post('/post-user', postUser)
 router.post('/post-to-login', postToLogin)

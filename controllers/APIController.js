@@ -326,14 +326,14 @@ export const putCart = async (req, res) => {
 
 export const getQuantity = async (req, res) => {
     let id_product = req.query.id
-    let size = req.body.size
+    let size = req.query.size
     if(!id_product||!size){
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
     try {
-        results = await readQuantity(id, size)
+        const results = await readQuantity(id_product, size)
         return res.status(200).json({
             massege: 'OK',
             data: results
