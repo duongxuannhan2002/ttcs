@@ -24,6 +24,7 @@ router.get('/get-1-product', get1Product)
 router.get('/get-user', getUser)
 router.get('/get-product-bought', getProductBought)
 router.get('/get-cart', getCart)
+router.get('/get-quantity')
 
 router.post('/post-user', postUser)
 router.post('/post-to-login', postToLogin)
