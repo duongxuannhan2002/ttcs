@@ -245,7 +245,7 @@ export const postProductToCart = async (req, res) => {
     let token = req.body.token
     let id_product = req.body.id_product
     let size = req.body.size
-    let id
+    let id_user
     if (!token || !id_product || !size) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -253,7 +253,6 @@ export const postProductToCart = async (req, res) => {
     }
     Jwt.verify(token, '05092002', function (err, decoded) {
         id_user = decoded.id
-        console.log('>>>>', id)
     });
     try {
         let id_size = await checkIdSize(size)
