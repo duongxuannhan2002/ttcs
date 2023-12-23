@@ -242,15 +242,19 @@ export const getCart = async (req, res) => {
 }
 
 export const postProductToCart = async (req, res) => {
-    let id_user = req.body.id_user
+    let token = req.body.token
     let id_product = req.body.id_product
     let size = req.body.size
-    if (!id_user || !id_product || !size) {
+    let id
+    if (!token || !id_product || !size) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
-
+    Jwt.verify(token, '05092002', function (err, decoded) {
+        id_user = decoded.id
+        console.log('>>>>', id)
+    });
     try {
         let id_size = await checkIdSize(size)
         let results = await checkProductInCart(id_user, id_product, id_size[0].id)
