@@ -225,11 +225,16 @@ export const getProductBought = async (req, res) => {
 }
 
 export const getCart = async (req, res) => {
-    if (!req.query.id) {
-        returnres.status(200).json({
+    let token = req.query.token
+    if (!req.query.token) {
+        return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
+    let id
+    Jwt.verify(token, '05092002', function (err, decoded) {
+        id = decoded.id
+    });
     try {
         let results = await readCart(req.query.id)
         return res.status(200).json({
