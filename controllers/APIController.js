@@ -232,7 +232,7 @@ export const getCart = async (req, res) => {
         })
     }
     let id
-    Jwt.verify(token, '05092002', function (err, decoded) {
+    Jwt.verify(token, '05092002',  function (err, decoded) {
         id = decoded.id
     });
     try {
