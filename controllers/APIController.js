@@ -236,7 +236,7 @@ export const getCart = async (req, res) => {
         id = decoded.id
     });
     try {
-        let results = await readCart(req.query.id)
+        let results = await readCart(id)
         return res.status(200).json({
             massege: 'ok',
             data: results
