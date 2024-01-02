@@ -17,7 +17,11 @@ import {
     dropCart,
     putCart,
     getQuantity,
-    postOrder}  from '../controllers/APIController.js'
+    postOrder,
+    getAllOrder,
+    getProductInOrder,
+    putOrder,
+    dropOrder}  from '../controllers/APIController.js'
 import { getImage, mainCompareImage } from "../services/CRUDservice.js";
 
 const storage = multer.diskStorage({
@@ -40,19 +44,23 @@ router.get('/get-product-bought', getProductBought)
 router.get('/get-cart', getCart)
 router.get('/get-quantity',getQuantity)
 router.get('/get-image',getImage)
+router.get('/get-all-order',getAllOrder)
+router.get('/get-detail-order',getProductInOrder)
 
 router.post('/post-user', postUser)
 router.post('/post-to-login', postToLogin)
 router.post('/post-product-to-cart', postProductToCart)
 router.post('/post-image',upload.single('image'), mainCompareImage)
 router.post('/post-order', postOrder)
-// router.post('/post-order-item', postOrderItem)
+
 
 router.put('/put-user', putUser)
 router.put('/put-cart',putCart)
+router.put('/put-order',putOrder)
 
-router.delete('/delete-user/:id', delUser)
+router.delete('/delete-user', delUser)
 router.delete('/delete-product-in-cart',dropProductInCart)
 router.delete('/delete-cart',dropCart)
+router.delete('/delete-order',dropOrder)
 
 export default router

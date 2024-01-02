@@ -20,14 +20,17 @@ import {
     checkIdSize,
     readQuantity,
     createOrder,
-    createProductInOrder
+    createProductInOrder,
+    readAllOrder,
+    readProductInOrder,
+    updateOrder,
+    delOrder
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 
 export const getShoes = async (req, res) => {
     try {
         let results = await readListShoes();
-        console.log('a', results)
         return res.status(200).json({
             massege: 'ok',
             data: results
@@ -232,7 +235,7 @@ export const getCart = async (req, res) => {
         })
     }
     let id
-    Jwt.verify(token, '05092002',  function (err, decoded) {
+    Jwt.verify(token, '05092002', function (err, decoded) {
         id = decoded.id
     });
     try {
@@ -318,6 +321,11 @@ export const dropCart = async (req, res) => {
 
 export const putCart = async (req, res) => {
     let listItem = req.body
+    if (!req.body) {
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
     listItem.forEach(async element => {
         try {
             let id_size = await checkIdSize(element.size)
@@ -334,7 +342,7 @@ export const putCart = async (req, res) => {
 export const getQuantity = async (req, res) => {
     let id_product = req.query.id
     let size = req.query.size
-    if(!id_product||!size){
+    if (!id_product || !size) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
@@ -350,34 +358,34 @@ export const getQuantity = async (req, res) => {
     }
 }
 
-export const postOrder = async(req, res) => {
-    let token= req.body.token
+export const postOrder = async (req, res) => {
+    let token = req.body.token
     let order_date = req.body.order_date
-    let address= req.body.address
-    let phoneNumber= req.body.phoneNumber
-    let totalPrice= req.body.totalPrice 
-    let payment= req.body.payment
-    let status= req.body.status
+    let address = req.body.address
+    let phoneNumber = req.body.phoneNumber
+    let totalPrice = req.body.totalPrice
+    let payment = req.body.payment
+    let status = req.body.status
     let products = req.body.products
-    
-    if( !token|| !order_date|| !address|| !phoneNumber|| !totalPrice|| !payment|| !status|| !products){
+
+    if (!token || !order_date || !address || !phoneNumber || !totalPrice || !payment || !status || !products) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
-    
+
     Jwt.verify(token, '05092002', function (err, decoded) {
         id_user = decoded.id
     })
     try {
-        const results = await createOrder(id_user, order_date, address, phoneNumber,totalPrice, payment, status)
+        const results = await createOrder(id_user, order_date, address, phoneNumber, totalPrice, payment, status)
         products.forEach(async e => {
             try {
-                await createProductInOrder(results.insertId ,e.id_product,e.id_size,e.quantity)
+                await createProductInOrder(results.insertId, e.id_product, e.id_size, e.quantity)
             } catch (err) {
                 return res.status(409).json({ message: err.message });
             }
-            
+
         });
         return res.status(200).json({
             massege: 'OK',
@@ -385,4 +393,73 @@ export const postOrder = async(req, res) => {
     } catch (error) {
         return res.status(409).json({ message: error.message });
     }
+}
+
+export const getAllOrder = async (req, res) => {
+    try {
+        let results = await readAllOrder();
+        return res.status(200).json({
+            massege: 'ok',
+            data: results
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
+}
+
+export const getProductInOrder = async (req, res) => {
+    if (!req.query.id_order) {
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        let results = await readProductInOrder(req.query.id_order);
+        return res.status(200).json({
+            massege: 'ok',
+            data: results
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
+}
+
+export const putOrder = async (req, res) => {
+    let address = req.body.address
+    let phoneNumber = req.body.phoneNumber
+    let status = req.body.status
+    let id_order = req.body.id_order
+    
+    if(!address ||!phoneNumber ||!status ||!id_order){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+
+    try {
+        await updateOrder(id_order,address,phoneNumber,status)
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
+    return res.status(200).json({
+        massege: 'OK',
+    })
+}
+
+export const dropOrder = async (req, res) => {
+    
+    if(!req.body.id_order){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+
+    try {
+        await delOrder(id_order)
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
+    return res.status(200).json({
+        massege: 'OK',
+    })
 }

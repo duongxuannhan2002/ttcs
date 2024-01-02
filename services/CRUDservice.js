@@ -577,6 +577,99 @@ export const createProductInOrder = async (id_order, id_product, id_size, quanti
   });
 } 
 
+export const readAllOrder = async () => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`SELECT * FROM orders
+        `, (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn:', error);
+            reject(error);
+          } else {
+            console.log(results);
+            resolve(results);
+          }
+        });
+      }
+    })
+  });
+} 
+
+export const readProductInOrder = async (id_order) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`SELECT product.name ,product.image, size.vl as size, order_item.quantity
+        FROM product JOIN order_item ON order_item.id_product= product.id
+        JOIN size ON order_item.id_size = size.id
+        WHERE order_item.id_order = ?;
+        `, [id_order], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn:', error);
+            reject(error);
+          } else {
+            console.log(results);
+            resolve(results);
+          }
+        });
+      }
+    })
+  });
+} 
+
+export const updateOrder = async (id_order, address, phoneNumber, status) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`UPDATE orders
+        SET address = ?, phone_number = ?, status = ? 
+        WHERE id_order`, [address, phoneNumber, status, id_order], (error, results) => {
+          connection.release()
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
+export const delOrder = async (id_order) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`DELETE FROM orders WHERE id = ? `, [id_order], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
 export const mainCompareImage = async (req, res) => {
   
   function computeSIFTFeatures(image) {
