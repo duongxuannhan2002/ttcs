@@ -1,5 +1,3 @@
-import uploadImageFireBase from './uploadImage.js'
-import connection from '../config/database.js'
 import {
     readListShoes,
     createUser,
@@ -20,7 +18,9 @@ import {
     delCart,
     updateProductInCart,
     checkIdSize,
-    readQuantity
+    readQuantity,
+    createOrder,
+    createProductInOrder
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 
@@ -344,6 +344,43 @@ export const getQuantity = async (req, res) => {
         return res.status(200).json({
             massege: 'OK',
             data: results
+        })
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
+}
+
+export const postOrder = async(req, res) => {
+    let token= req.body.token
+    let order_date = req.body.order_date
+    let address= req.body.address
+    let phoneNumber= req.body.phoneNumber
+    let totalPrice= req.body.totalPrice 
+    let payment= req.body.payment
+    let status= req.body.status
+    let products = req.body.products
+    
+    if( !token|| !order_date|| !address|| !phoneNumber|| !totalPrice|| !payment|| !status|| !products){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    
+    Jwt.verify(token, '05092002', function (err, decoded) {
+        id_user = decoded.id
+    })
+    try {
+        const results = await createOrder(id_user, order_date, address, phoneNumber,totalPrice, payment, status)
+        products.forEach(async e => {
+            try {
+                await createProductInOrder(results.insertId ,e.id_product,e.id_size,e.quantity)
+            } catch (err) {
+                return res.status(409).json({ message: err.message });
+            }
+            
+        });
+        return res.status(200).json({
+            massege: 'OK',
         })
     } catch (error) {
         return res.status(409).json({ message: error.message });

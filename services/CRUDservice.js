@@ -1,4 +1,7 @@
 import connection from '../config/database.js'
+import fs from 'fs'
+import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
+
 
 export const readListShoes = async () => {
   return new Promise((resolve, reject) => {
@@ -503,7 +506,7 @@ export const checkIdSize = async (size) => {
     })
   })
 }
-export const readQuantity = async(id_product, size) => {
+export const readQuantity = async (id_product, size) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
@@ -512,7 +515,7 @@ export const readQuantity = async(id_product, size) => {
       } else {
         connection.query(`SELECT quantity from size_product
         JOIN size ON size.id = size_product.id_size
-        WHERE size.vl = ? AND size_product.id_product = ?`, [size,id_product], (error, results) => {
+        WHERE size.vl = ? AND size_product.id_product = ?`, [size, id_product], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn: ', error);
@@ -525,3 +528,129 @@ export const readQuantity = async(id_product, size) => {
     })
   })
 }
+
+export const createOrder = async (id_user, order_date, address, phoneNumber,totalPrice, payment, status) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`INSERT INTO orders (id_user, order_date, address, phone_number, total_price, payment, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?);
+        `, [id_user, order_date, address, phoneNumber, totalPrice,payment, status], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn:', error);
+            reject(error);
+          } else {
+            console.log(results);
+            resolve(results);
+          }
+        });
+      }
+    })
+  });
+} 
+
+export const createProductInOrder = async (id_order, id_product, id_size, quantity) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`INSERT INTO order_item (id_order, id_product, id_size, quantity) 
+        VALUES (?, ?, ?, ?);
+        `, [id_order, id_product, id_size, quantity], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn:', error);
+            reject(error);
+          } else {
+            console.log(results);
+            resolve(results);
+          }
+        });
+      }
+    })
+  });
+} 
+
+export const mainCompareImage = async (req, res) => {
+  
+  function computeSIFTFeatures(image) {
+    const grayImg = image.cvtColor(cv.COLOR_BGR2GRAY);
+    const sift = new cv.SIFTDetector();
+    return sift.detectAndCompute(grayImg);
+  }
+  
+  // Hàm để so sánh hai tập điểm đặc trưng SIFT
+  function matchSIFTFeatures(descriptor1, descriptor2) {
+    const flann = new cv.FlannBasedMatcher();
+    const matches = flann.match(descriptor1, descriptor2);
+    return matches;
+  }
+  
+  // Đọc hai hình ảnh cần so sánh
+  const img1 = cv.imread('public/image/image1.jpg');
+  const img2 = cv.imread('public/image/image4.jpg');
+  
+  // Tính toán điểm đặc trưng SIFT cho hai hình ảnh
+  const [keypoints1, descriptors1] = computeSIFTFeatures(img1);
+  const [keypoints2, descriptors2] = computeSIFTFeatures(img2);
+  
+  // So sánh điểm đặc trưng SIFT
+  const matches = matchSIFTFeatures(descriptors1, descriptors2);
+  
+  // Vẽ các kết quả trên hình ảnh
+  const resultImg = cv.drawMatches(img1, keypoints1, img2, keypoints2, matches);
+  
+  // Hiển thị hình ảnh kết quả (chỉ là ví dụ, có thể bạn sẽ lưu lại hình ảnh sau đó)
+  cv.imshow('SIFT Matches', resultImg);
+  cv.waitKey();
+  // public/image/image1.jpg
+
+  // if (!req.file) {
+  //   console.log('no image')
+  // }
+
+  // const list = await getImage();
+
+  // list.forEach(async (e) => {
+  //   await compareImages(req.file.path, e);
+  // })
+  // fs.unlink(req.file.path, (err) => {
+  //   if (err) {
+  //     console.log(err)
+  //   }
+  // })
+}
+
+
+export const getImage = async () => {
+  const storage = getStorage();
+
+  // Create a reference under which you want to list
+  const listRef = ref(storage, 'images');
+
+  try {
+    const res = await listAll(listRef);
+    const promises = res.items.map(async (itemRef) => {
+      try {
+        const url = await getDownloadURL(itemRef);
+        return url;
+      } catch (error) {
+        console.log(error);
+        return null; // Hoặc giá trị mặc định khi có lỗi xảy ra
+      }
+    });
+
+    const list = await Promise.all(promises);
+    const filteredList = list.filter(url => url !== null);
+    return filteredList;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
