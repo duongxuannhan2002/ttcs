@@ -455,8 +455,8 @@ export const dropOrder = async (req, res) => {
     }
 
     try {
-        await delProductInOrder(id_order)
-        await delOrder(id_order)
+        await delProductInOrder(req.query.id_order)
+        await delOrder(req.query.id_order)
     } catch (error) {
         return res.status(409).json({ message: error.message });
     }
