@@ -670,6 +670,27 @@ export const delOrder = async (id_order) => {
   })
 }
 
+export const delProductInOrder = async (id_order) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`DELETE FROM order_item WHERE id_order = ? `, [id_order], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
 export const mainCompareImage = async (req, res) => {
   
   function computeSIFTFeatures(image) {

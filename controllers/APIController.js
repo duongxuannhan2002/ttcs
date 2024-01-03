@@ -24,7 +24,8 @@ import {
     readAllOrder,
     readProductInOrder,
     updateOrder,
-    delOrder
+    delOrder,
+    delProductInOrder
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 
@@ -454,6 +455,7 @@ export const dropOrder = async (req, res) => {
     }
 
     try {
+        await delProductInOrder(id_order)
         await delOrder(id_order)
     } catch (error) {
         return res.status(409).json({ message: error.message });
