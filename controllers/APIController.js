@@ -448,7 +448,7 @@ export const putOrder = async (req, res) => {
 
 export const dropOrder = async (req, res) => {
     
-    if(!req.body.id_order){
+    if(!req.query.id_order){
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
