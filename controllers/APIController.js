@@ -373,7 +373,7 @@ export const postOrder = async (req, res) => {
             message: 'oh NOOOOOO'
         })
     }
-
+    let id_user
     Jwt.verify(token, '05092002', function (err, decoded) {
         id_user = decoded.id
     })
