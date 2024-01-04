@@ -25,7 +25,9 @@ import {
     readProductInOrder,
     updateOrder,
     delOrder,
-    delProductInOrder
+    delProductInOrder,
+    updatePayment,
+    updateQuantity
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 import moment from 'moment'
@@ -384,15 +386,20 @@ export const postOrder = async (req, res) => {
     })
     try {
         const results = await createOrder(id_user, order_date, address, phoneNumber, totalPrice, payment, status)
+        let orderId = results.insertId
         products.forEach(async e => {
             try {
-                await createProductInOrder(results.insertId, e.id_product, e.id_size, e.quantity)
+                await createProductInOrder(id_order, e.id_product, e.id_size, e.quantity)
+                let size = await readSize(e.id_size)
+                let allQuantity = await readQuantity(e.id_product,size)
+                await updateQuantity(e.id_product,e.id_size, allQuantity-e.quantity)
             } catch (err) {
                 return res.status(409).json({ message: err.message });
             }
         });
         return res.status(200).json({
             massege: 'OK',
+            data: orderId
         })
     } catch (error) {
         return res.status(409).json({ message: error.message });
@@ -470,7 +477,8 @@ export const dropOrder = async (req, res) => {
 }
 
 export const createPayment = (req, res) =>{
-    if(!req.query.amount){
+
+    if(!req.query.amount||!req.query.orderId){
         return res.status(200).json({
             massege: 'Oh noooo',
         })
@@ -490,7 +498,7 @@ export const createPayment = (req, res) =>{
   let secretKey = "BQVYJLEQMTAQKWXNGFYQPQAHKNPALWJN"
   let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
   let returnUrl = "http://localhost:3000/query"
-  let orderId = moment(date).format('DDHHmmss');
+  let orderId = req.query.orderId
   let amount = req.query.amount
   let bankCode = ""
   
@@ -545,6 +553,12 @@ function sortObject(obj) {
 }
 
 export const queryPayment = (req, res, next) => {
+
+    if(!req.query.orderId||!req.query.createDate){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
     
     process.env.TZ = 'Asia/Ho_Chi_Minh';
     let date = new Date();
@@ -553,8 +567,8 @@ export const queryPayment = (req, res, next) => {
     let secretKey = "BQVYJLEQMTAQKWXNGFYQPQAHKNPALWJN"
     let vnp_Api = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
     
-    let vnp_TxnRef = "04070025";
-    let vnp_TransactionDate = "20240104070025";
+    let vnp_TxnRef = req.query.orderId
+    let vnp_TransactionDate = req.query.createDate
     
     let vnp_RequestId =moment(date).format('HHmmss');
     let vnp_Version = '2.1.0';
@@ -596,4 +610,21 @@ export const queryPayment = (req, res, next) => {
                 res.send(response)
             });
 
+}
+
+export const putPayment = async(req,res) => {
+    if(!req.query.orderId){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        await updatePayment(req.query.orderId)
+        return res.status(200).json({
+            message: 'oke'
+        })
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
+    
 }

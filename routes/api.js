@@ -23,7 +23,8 @@ import {
     putOrder,
     dropOrder,
     createPayment,
-    queryPayment}  from '../controllers/APIController.js'
+    queryPayment,
+    putPayment}  from '../controllers/APIController.js'
 import { getImage, mainCompareImage } from "../services/CRUDservice.js";
 
 const storage = multer.diskStorage({
@@ -62,6 +63,7 @@ router.post('/post-order', postOrder)
 router.put('/put-user', putUser)
 router.put('/put-cart',putCart)
 router.put('/put-order',putOrder)
+router.put('/put-payment-order',putPayment)
 
 router.delete('/delete-user', delUser)
 router.delete('/delete-product-in-cart',dropProductInCart)

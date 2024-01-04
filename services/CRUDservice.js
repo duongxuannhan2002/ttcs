@@ -283,6 +283,28 @@ export const read1Product = async (id) => {
   });
 }
 
+export const readSize = async (id) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`SELECT vl From size WHERE id = ?`, [id], (error, results) => {
+          connection.release()
+          if (error) {
+            console.error('Lỗi truy vấn:', error);
+            reject(error);
+          } else {
+            // console.log(results);
+            resolve(results);
+          }
+        });
+      }
+    })
+  })
+}
+
 export const readSizeProduct = async (id) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
@@ -530,6 +552,29 @@ export const readQuantity = async (id_product, size) => {
   })
 }
 
+export const updateQuantity = async (id_product,id_size, quantity) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`UPDATE size_product
+        SET quantity = ?
+        WHERE id_size=? AND id_product=?`, [quantity, id_size, id_product], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
 export const createOrder = async (id_user, order_date, address, phoneNumber, totalPrice, payment, status) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
@@ -679,6 +724,29 @@ export const delProductInOrder = async (id_order) => {
         reject(err)
       } else {
         connection.query(`DELETE FROM order_item WHERE id_order = ? `, [id_order], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
+export const updatePayment = async (id_order) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`UPDATE orders
+        SET payment = online
+        WHERE id = ?`, [id_order], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn: ', error);
