@@ -1,3 +1,10 @@
 node_modules
 .env
 package.json
+"opencv4nodejs": "^5.6.0",
+"opencv4nodejs": {
+    "disableAutoBuild": 1,
+    "opencvIncludeDir": "C:\\OpenCV\\include",
+    "opencvLibDir": "C:\\OpenCV\\x64\\vc16\\lib",
+    "opencvBinDir": "C:\\OpenCV\\x64\\vc16\bin"
+  }

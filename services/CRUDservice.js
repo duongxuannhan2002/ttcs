@@ -1,6 +1,7 @@
 import connection from '../config/database.js'
 import fs from 'fs'
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
+import cv from "opencv4nodejs"
 
 
 export const readListShoes = async () => {
@@ -361,7 +362,7 @@ export const readCart = async (id) => {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(`SELECT product.name,product.image, product.price, cart_item.quantity, size.vl AS size
+        connection.query(`SELECT product.id as id_product, product.name,product.image, product.price, cart_item.quantity, size.vl AS size
     FROM product JOIN cart_item ON cart_item.id_product = product.id
     JOIN size ON cart_item.id_size = size.id
     WHERE cart_item.id_user = ?`, [id], (error, results) => {
@@ -529,7 +530,7 @@ export const readQuantity = async (id_product, size) => {
   })
 }
 
-export const createOrder = async (id_user, order_date, address, phoneNumber,totalPrice, payment, status) => {
+export const createOrder = async (id_user, order_date, address, phoneNumber, totalPrice, payment, status) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
@@ -538,7 +539,7 @@ export const createOrder = async (id_user, order_date, address, phoneNumber,tota
       } else {
         connection.query(`INSERT INTO orders (id_user, order_date, address, phone_number, total_price, payment, status) 
         VALUES (?, ?, ?, ?, ?, ?, ?);
-        `, [id_user, order_date, address, phoneNumber, totalPrice,payment, status], (error, results) => {
+        `, [id_user, order_date, address, phoneNumber, totalPrice, payment, status], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn:', error);
@@ -551,7 +552,7 @@ export const createOrder = async (id_user, order_date, address, phoneNumber,tota
       }
     })
   });
-} 
+}
 
 export const createProductInOrder = async (id_order, id_product, id_size, quantity) => {
   return new Promise((resolve, reject) => {
@@ -575,7 +576,7 @@ export const createProductInOrder = async (id_order, id_product, id_size, quanti
       }
     })
   });
-} 
+}
 
 export const readAllOrder = async () => {
   return new Promise((resolve, reject) => {
@@ -598,7 +599,7 @@ export const readAllOrder = async () => {
       }
     })
   });
-} 
+}
 
 export const readProductInOrder = async (id_order) => {
   return new Promise((resolve, reject) => {
@@ -624,7 +625,7 @@ export const readProductInOrder = async (id_order) => {
       }
     })
   });
-} 
+}
 
 export const updateOrder = async (id_order, address, phoneNumber, status) => {
   return new Promise((resolve, reject) => {
@@ -692,37 +693,36 @@ export const delProductInOrder = async (id_order) => {
 }
 
 export const mainCompareImage = async (req, res) => {
-  
-  function computeSIFTFeatures(image) {
-    const grayImg = image.cvtColor(cv.COLOR_BGR2GRAY);
-    const sift = new cv.SIFTDetector();
-    return sift.detectAndCompute(grayImg);
+
+  function compareImages(imagePath1, imagePath2) {
+     // Đọc ảnh từ đường dẫn
+    const img1 = cv.imread(imagePath1);
+    const img2 = cv.imread(imagePath2);
+
+    // Chuyển đổi sang ảnh xám để dễ dàng so sánh
+    const grayImg1 = img1.bgrToGray();
+    const grayImg2 = img2.bgrToGray();
+
+    // Tính histogram của ảnh
+    const hist1 = cv.calcHist([grayImg1], [0], new cv.Mat(), [256], [0, 256]);
+    const hist2 = cv.calcHist([grayImg2], [0], new cv.Mat(), [256], [0, 256]);
+
+    // Tính sự tương đồng giữa hai histogram bằng cách sử dụng Bhattacharyya coefficient
+    const bhattacharyyaCoefficient = cv.compareHist(hist1, hist2, cv.HISTCMP_BHATTACHARYYA);
+
+    // Hiển thị kết quả
+    console.log(`Hệ số Bhattacharyya: ${bhattacharyyaCoefficient}`);
+
+    // Kiểm tra xem ảnh có gần giống nhau không
+    if (bhattacharyyaCoefficient > 0.8) {
+        console.log('Ảnh gần giống nhau.');
+    } else {
+        console.log('Ảnh không gần giống nhau.');
+    }
   }
-  
-  // Hàm để so sánh hai tập điểm đặc trưng SIFT
-  function matchSIFTFeatures(descriptor1, descriptor2) {
-    const flann = new cv.FlannBasedMatcher();
-    const matches = flann.match(descriptor1, descriptor2);
-    return matches;
-  }
-  
-  // Đọc hai hình ảnh cần so sánh
-  const img1 = cv.imread('public/image/image1.jpg');
-  const img2 = cv.imread('public/image/image4.jpg');
-  
-  // Tính toán điểm đặc trưng SIFT cho hai hình ảnh
-  const [keypoints1, descriptors1] = computeSIFTFeatures(img1);
-  const [keypoints2, descriptors2] = computeSIFTFeatures(img2);
-  
-  // So sánh điểm đặc trưng SIFT
-  const matches = matchSIFTFeatures(descriptors1, descriptors2);
-  
-  // Vẽ các kết quả trên hình ảnh
-  const resultImg = cv.drawMatches(img1, keypoints1, img2, keypoints2, matches);
-  
-  // Hiển thị hình ảnh kết quả (chỉ là ví dụ, có thể bạn sẽ lưu lại hình ảnh sau đó)
-  cv.imshow('SIFT Matches', resultImg);
-  cv.waitKey();
+
+  // Thực hiện so sánh giữa hai ảnh
+  compareImages('public/image/image1.jpg', 'public/image/image3.jpg');
   // public/image/image1.jpg
 
   // if (!req.file) {
