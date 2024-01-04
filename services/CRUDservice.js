@@ -1,7 +1,7 @@
 import connection from '../config/database.js'
 import fs from 'fs'
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
-import cv from "opencv4nodejs"
+// import cv from "opencv4nodejs"
 
 
 export const readListShoes = async () => {
