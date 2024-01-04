@@ -646,6 +646,29 @@ export const readAllOrder = async () => {
   });
 }
 
+export const readOderById = (id_user) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`SELECT * FROM orders WHERE id_user = ?
+        `,[id_user], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn:', error);
+            reject(error);
+          } else {
+            console.log(results);
+            resolve(results);
+          }
+        });
+      }
+    })
+  });
+}
+
 export const readProductInOrder = async (id_order) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
