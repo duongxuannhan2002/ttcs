@@ -391,10 +391,8 @@ export const postOrder = async (req, res) => {
         let orderId = results.insertId
         await products.forEach(async e => {
             try {
-                let id_size = await readIdSize(e.size)
-                await createProductInOrder(orderId, e.id_product, id_size[0].id, e.quantity)
-                let allQuantity = await readQuantity(e.id_product, e.size)
-                await updateQuantity(e.id_product, id_size[0].id, allQuantity[0].quantity - e.quantity)
+                await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity)
+                await updateQuantity(e.id_product, e.id_size, e.quantity)
             } catch (err) {
                 console.log("gặp lỗi này nè: ",err)
             }

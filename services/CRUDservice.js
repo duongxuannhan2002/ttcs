@@ -559,8 +559,8 @@ export const updateQuantity = async (id_product,id_size, quantity) => {
         reject(err)
       } else {
         connection.query(`UPDATE size_product
-        SET quantity = ?
-        WHERE id_size=? AND id_product=?`, [quantity, id_size, id_product], (error, results) => {
+        SET quantity = quantity - ?, sold = sold + ?
+        WHERE id_size=? AND id_product=?`, [quantity, quantity, id_size, id_product], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn: ', error);
