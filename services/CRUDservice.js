@@ -290,7 +290,7 @@ export const readIdSize = async (size) => {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(`SELECT id From size WHERE size = ?`, [size], (error, results) => {
+        connection.query(`SELECT id From size WHERE vl = ?`, [size], (error, results) => {
           connection.release()
           if (error) {
             console.error('Lỗi truy vấn:', error);
