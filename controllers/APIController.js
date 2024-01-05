@@ -394,7 +394,7 @@ export const postOrder = async (req, res) => {
                 let id_size = await readIdSize(e.size)
                 await createProductInOrder(orderId, e.id_product, id_size[0].id, e.quantity)
                 let allQuantity = await readQuantity(e.id_product, e.size)
-                await updateQuantity(e.id_product, id_size[0].id, allQuantity - e.quantity)
+                await updateQuantity(e.id_product, id_size[0].id, allQuantity[0].quantity - e.quantity)
             } catch (err) {
                 return res.status(409).json({ message: err.message });
             }
