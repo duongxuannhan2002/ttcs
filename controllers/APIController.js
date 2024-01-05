@@ -29,7 +29,6 @@ import {
     updatePayment,
     updateQuantity,
     readOderById,
-    readSize,
     readIdSize
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
