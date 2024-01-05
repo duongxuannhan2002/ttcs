@@ -36,6 +36,11 @@ import moment from 'moment'
 import querystring from 'qs'
 import crypto from 'crypto'
 import request from 'request'
+import { setTimeout } from 'timers'
+
+const delayAsync = async (milliseconds) => {
+    await new Promise(resolve => setTimeout(resolve, milliseconds));
+  };
 
 export const getShoes = async (req, res) => {
     try {
@@ -392,7 +397,9 @@ export const postOrder = async (req, res) => {
         await products.forEach(async e => {
             try {
                 await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity)
+                await delayAsync(2000)
                 await updateQuantity(e.id_product, e.id_size, e.quantity)
+                await delayAsync(2000)
             } catch (err) {
                 console.log("gặp lỗi này nè: ",err)
             }
