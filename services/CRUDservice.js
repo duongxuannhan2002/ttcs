@@ -14,9 +14,11 @@ export const readListShoes = async () => {
         connection.query(`SELECT * FROM product`, (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
+            connection.release();
             console.log(results);
             resolve(results);
           }
@@ -38,9 +40,11 @@ export const createShoes = async (name, price, quantity, imageString, brand, dis
         `, [name, price, quantity, imageString, brand, discount, sold], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
+            connection.release();
             console.log(results);
             resolve(results);
           }
@@ -63,9 +67,11 @@ export const updateShoes = async (name, price, quantity, imageString, brand, dis
         `, [name, price, quantity, imageString, brand, discount, sold, id], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
+            connection.release();
             console.log(results);
             resolve(results);
           }
@@ -85,9 +91,11 @@ export const deleteShoes = async (id) => {
         connection.query(`DELETE FROM product WHERE id = ? `, [id], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
+            connection.release();
             console.log(results);
             resolve(results);
           }
@@ -107,9 +115,11 @@ export const readListUser = async () => {
         connection.query(`SELECT * FROM users`, (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
+            connection.release();
             console.log(results);
             resolve(results);
           }
@@ -131,9 +141,11 @@ export const createUser = async (name, email, pass, phoneNumber) => {
         `, [name, email, pass, phoneNumber], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
+            connection.release();
             console.log(results);
             resolve(results);
           }
@@ -155,6 +167,7 @@ export const updateUser = async (name, email, phoneNumber, id) => {
     WHERE id=?`, [name, email, phoneNumber, id], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.log('Lỗi truy vấn: ', error);
             reject(error)
           }
@@ -178,6 +191,7 @@ export const deleteUser = async (id) => {
         connection.query(`DELETE FROM users WHERE id = ? `, [id], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -201,6 +215,7 @@ export const readListShoesByBrand = async (brand) => {
     WHERE brand= ?`, [brand], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -224,6 +239,7 @@ export const readListShoesBySearch = async (key) => {
         WHERE LOWER(name) LIKE CONCAT('%', LOWER(?), '%');`, [key], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -248,6 +264,7 @@ export const logIn = async (phoneNumber, pass) => {
         connection.query(`select id, phone_number, name, pass from users where phone_number = ? and pass = ?`, [phoneNumber, pass], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -271,6 +288,7 @@ export const read1Product = async (id) => {
     WHERE product.id = ?`, [id], (error, results) => {
           connection.release()
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -293,6 +311,7 @@ export const readIdSize = async (size) => {
         connection.query(`SELECT id From size WHERE vl = ?`, [size], (error, results) => {
           connection.release()
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -318,6 +337,7 @@ export const readSizeProduct = async (id) => {
     WHERE product.id = ?;`, [id], (error, results) => {
           connection.release()
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -341,6 +361,7 @@ export const checkPhoneNumber = async (phoneNumber) => {
         connection.query(`select * from users where phone_number = ? `, [phoneNumber], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -366,6 +387,7 @@ export const readListProductBought = async (id_user) => {
     WHERE orders.id_user=?;`, [id_user], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -390,6 +412,7 @@ export const readCart = async (id) => {
     WHERE cart_item.id_user = ?`, [id], (error, results) => {
           connection.release()
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -414,6 +437,7 @@ export const checkProductInCart = async (id_user, id_product, id_size) => {
                           WHERE cart_item.id_user = ? AND product.id= ? AND size.id = ?`, [id_user, id_product, id_size], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -455,6 +479,7 @@ export const delProductInCart = async (id_user, id_product, id_size) => {
         connection.query(`DELETE FROM cart_item WHERE id_user = ? AND id_product = ? AND id_size = ?;`, [id_user, id_product, id_size], (error, results) => {
           if (error) {
             connection.release();
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -476,6 +501,7 @@ export const delCart = async (id_user) => {
         connection.query(`DELETE FROM cart_item WHERE id_user = ? `, [id_user], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -499,6 +525,7 @@ export const updateProductInCart = async (id_user, id_product, quantity, id_size
         WHERE id_user = ? AND id_product = ? AND id_size = ?;`, [quantity, id_user, id_product, id_size], (error, results) => {
           connection.release()
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -519,6 +546,7 @@ export const checkIdSize = async (size) => {
         connection.query(`SELECT id from size WHERE vl = ?`, [size], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -541,6 +569,7 @@ export const readQuantity = async (id_product, size) => {
         WHERE size.vl = ? AND size_product.id_product = ?`, [size, id_product], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -564,6 +593,7 @@ export const updateQuantity = async (id_product,id_size, quantity) => {
         WHERE id_size=? AND id_product=?`, [quantity, id_size, id_product], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -587,6 +617,7 @@ export const createOrder = async (id_user, order_date, address, phoneNumber, tot
         `, [id_user, order_date, address, phoneNumber, totalPrice, payment, status], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -611,6 +642,7 @@ export const createProductInOrder = async (id_order, id_product, id_size, quanti
         `, [id_order, id_product, id_size, quantity], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -634,6 +666,7 @@ export const readAllOrder = async () => {
         `, (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -657,6 +690,7 @@ export const readOderById = (id_user) => {
         `,[id_user], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -683,6 +717,7 @@ export const readProductInOrder = async (id_order) => {
         `, [id_order], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn:', error);
             reject(error);
           } else {
@@ -707,6 +742,7 @@ export const updateOrder = async (id_order, address, phoneNumber, status) => {
         WHERE id_order`, [address, phoneNumber, status, id_order], (error, results) => {
           connection.release()
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -728,6 +764,7 @@ export const delOrder = async (id_order) => {
         connection.query(`DELETE FROM orders WHERE id = ? `, [id_order], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -749,6 +786,7 @@ export const delProductInOrder = async (id_order) => {
         connection.query(`DELETE FROM order_item WHERE id_order = ? `, [id_order], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
@@ -772,6 +810,7 @@ export const updatePayment = async (id_order) => {
         WHERE id = ?`, [id_order], (error, results) => {
           connection.release();
           if (error) {
+            connection.release();
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {

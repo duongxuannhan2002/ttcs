@@ -396,7 +396,7 @@ export const postOrder = async (req, res) => {
                 let allQuantity = await readQuantity(e.id_product, e.size)
                 await updateQuantity(e.id_product, id_size[0].id, allQuantity[0].quantity - e.quantity)
             } catch (err) {
-                return res.status(409).json({ message: err.message });
+                console.log("gặp lỗi này nè: ",err)
             }
         });
         return res.status(200).json({
