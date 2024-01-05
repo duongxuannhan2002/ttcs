@@ -29,7 +29,8 @@ import {
     updatePayment,
     updateQuantity,
     readOderById,
-    readSize
+    readSize,
+    readIdSize
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 import moment from 'moment'
@@ -391,14 +392,10 @@ export const postOrder = async (req, res) => {
         let orderId = results.insertId
         await products.forEach(async e => {
             try {
-                await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity)
-                console.log(1)
-                let size = await readSize(e.id_size)
-                console.log(2)
-                let allQuantity = await readQuantity(e.id_product, size)
-                console.log(3)
-                await updateQuantity(e.id_product, e.id_size, allQuantity - e.quantity)
-                console.log(4)
+                let id_size = await readIdSize(e.id_size)
+                await createProductInOrder(orderId, e.id_product, id_size, e.quantity)
+                let allQuantity = await readQuantity(e.id_product, e.size)
+                await updateQuantity(e.id_product, id_size, allQuantity - e.quantity)
             } catch (err) {
                 return res.status(409).json({ message: err.message });
             }

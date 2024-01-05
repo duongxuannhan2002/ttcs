@@ -283,14 +283,14 @@ export const read1Product = async (id) => {
   });
 }
 
-export const readSize = async (id) => {
+export const readIdSize = async (size) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(`SELECT vl From size WHERE id = ?`, [id], (error, results) => {
+        connection.query(`SELECT id From size WHERE size = ?`, [size], (error, results) => {
           connection.release()
           if (error) {
             console.error('Lỗi truy vấn:', error);
