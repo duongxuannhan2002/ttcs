@@ -384,33 +384,37 @@ export const postOrder = async (req, res) => {
 
     if (!token || !order_date || !address || !phoneNumber || !totalPrice || !payment || !status || !products) {
         return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-    let id_user
-    Jwt.verify(token, '05092002', function (err, decoded) {
-        id_user = decoded.id
-    })
-    try {
-        const results = await createOrder(id_user, order_date, address, phoneNumber, totalPrice, payment, status)
-        let orderId = results.insertId
-        await products.forEach(async e => {
-            try {
-                await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity)
-                await delayAsync(2000)
-                await updateQuantity(e.id_product, e.id_size, e.quantity)
-                await delayAsync(2000)
-            } catch (err) {
-                console.log("gặp lỗi này nè: ",err)
-            }
+          message: 'oh NOOOOOO'
         });
+      }
+    
+      let id_user;
+      Jwt.verify(token, '05092002', function (err, decoded) {
+        id_user = decoded.id;
+      });
+    
+      try {
+        const results = await createOrder(id_user, order_date, address, phoneNumber, totalPrice, payment, status);
+        let orderId = results.insertId;
+    
+        for (const e of products) {
+          try {
+            await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity);
+            await delayAsync(2000);
+            await updateQuantity(e.id_product, e.id_size, e.quantity);
+            await delayAsync(2000);
+          } catch (err) {
+            console.log("gặp lỗi này nè: ", err);
+          }
+        }
+    
         return res.status(200).json({
-            massege: 'OK',
-            data: orderId
-        })
-    } catch (error) {
+          message: 'OK',
+          data: orderId
+        });
+      } catch (error) {
         return res.status(409).json({ message: error.message });
-    }
+      }
 }
 
 export const getAllOrder = async (req, res) => {
