@@ -389,7 +389,7 @@ export const postOrder = async (req, res) => {
     try {
         const results = await createOrder(id_user, order_date, address, phoneNumber, totalPrice, payment, status)
         let orderId = results.insertId
-        products.forEach(async e => {
+        await products.forEach(async e => {
             try {
                 await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity)
                 console.log(1)
