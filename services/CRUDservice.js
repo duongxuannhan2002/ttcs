@@ -423,14 +423,14 @@ export const checkProductInCart = async (id_user, id_product, id_size) => {
     })
   })
 }
-export const createProductIntoCart = async (id_user, id_product, id_size) => {
+export const createProductIntoCart = async (id_user, id_product,quantity, id_size) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(`INSERT INTO cart_item (id_user, id_product, quantity, id_size) VALUES (?, ?, ?, ?)`, [id_user, id_product, 1, id_size], (error, results) => {
+        connection.query(`INSERT INTO cart_item (id_user, id_product, quantity, id_size) VALUES (?, ?, ?, ?)`, [id_user, id_product, quantity, id_size], (error, results) => {
           if (error) {
             console.error('Lỗi truy vấn: ', error);
             reject(error);

@@ -267,6 +267,8 @@ export const postProductToCart = async (req, res) => {
     let token = req.body.token
     let id_product = req.body.id_product
     let size = req.body.size
+    let id_size = req.body.id_size
+    let quantity = req.body.quantity
     let id_user
     if (!token || !id_product || !size) {
         return res.status(200).json({
@@ -277,14 +279,13 @@ export const postProductToCart = async (req, res) => {
         id_user = decoded.id
     });
     try {
-        let id_size = await checkIdSize(size)
-        let results = await checkProductInCart(id_user, id_product, id_size[0].id)
+        let results = await checkProductInCart(id_user, id_product, id_size)
         if (results.length > 0) {
             return res.status(200).json({
                 massege: 'Sản phẩm đã có trong giỏ hàng',
             })
         } else {
-            await createProductIntoCart(id_user, id_product, id_size[0].id)
+            await createProductIntoCart(id_user, id_product, quantity, id_size)
             return res.status(200).json({
                 massege: 'OK',
             })
@@ -298,15 +299,16 @@ export const dropProductInCart = async (req, res) => {
     let id_user = req.body.id_user
     let id_product = req.body.id_product
     let size = req.body.size
-    if (!id_user || !id_product || !size) {
+    let id_size = req.body.size
+
+    if (!id_user || !id_product || !size || !id_size) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
 
     try {
-        let id_size = await checkIdSize(size)
-        await delProductInCart(id_user, id_product, id_size[0].id);
+        await delProductInCart(id_user, id_product, id_size);
         return res.status(200).json({
             massege: 'OK',
         })
@@ -342,8 +344,7 @@ export const putCart = async (req, res) => {
     }
     listItem.forEach(async element => {
         try {
-            let id_size = await checkIdSize(element.size)
-            await updateProductInCart(element.id_user, element.id_product, element.quantity, id_size[0].id);
+            await updateProductInCart(element.id_user, element.id_product, element.quantity, element.id_size);
         } catch (error) {
             return res.status(409).json({ message: error.message });
         }
