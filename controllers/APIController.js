@@ -270,7 +270,7 @@ export const postProductToCart = async (req, res) => {
     let id_size = req.body.id_size
     let quantity = req.body.quantity
     let id_user
-    if (!token || !id_product || !size) {
+    if (!token || !id_product || !size || !quantity) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
@@ -299,7 +299,7 @@ export const dropProductInCart = async (req, res) => {
     let id_user = req.body.id_user
     let id_product = req.body.id_product
     let size = req.body.size
-    let id_size = req.body.size
+    let id_size = req.body.id_size
 
     if (!id_user || !id_product || !size || !id_size) {
         return res.status(200).json({
