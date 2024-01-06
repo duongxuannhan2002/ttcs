@@ -383,7 +383,7 @@ export const readCart = async (id) => {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(`SELECT product.id as id_product, product.name,product.image, product.discount, product.price, cart_item.quantity, size.vl AS size
+        connection.query(`SELECT product.id as id_product, product.name,product.image, product.discount, product.price, cart_item.quantity,cart_item.id_size, size.vl AS size
     FROM product JOIN cart_item ON cart_item.id_product = product.id
     JOIN size ON cart_item.id_size = size.id
     WHERE cart_item.id_user = ?`, [id], (error, results) => {
