@@ -24,12 +24,13 @@ import {
     dropOrder,
     createPayment,
     queryPayment,
-    putPayment}  from '../controllers/APIController.js'
-import { getImage, mainCompareImage } from "../services/CRUDservice.js";
+    putPayment,
+    getImage,
+    mainCompareImage}  from '../controllers/APIController.js'
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'public/image');
+      cb(null, 'D:/hoc/ttcs/public/image');
     },
     filename: function (req, file, cb) {
       cb(null, file.originalname);
@@ -49,14 +50,14 @@ router.get('/get-quantity',getQuantity)
 router.get('/get-image',getImage)
 router.get('/get-all-order',getAllOrder)
 router.get('/get-detail-order',getProductInOrder)
-router.get('/test',mainCompareImage)
+// router.get('/test',mainCompareImage)
 router.get('/payment', createPayment)
 router.get('/query-payment',queryPayment)
 
 router.post('/post-user', postUser)
 router.post('/post-to-login', postToLogin)
 router.post('/post-product-to-cart', postProductToCart)
-// router.post('/post-image',upload.single('image'), mainCompareImage)
+router.post('/post-image',upload.single('image'), mainCompareImage)
 router.post('/post-order', postOrder)
 
 

@@ -37,10 +37,13 @@ import querystring from 'qs'
 import crypto from 'crypto'
 import request from 'request'
 import { setTimeout } from 'timers'
+import fs from 'fs'
+import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
+import { exec } from 'child_process'
 
 const delayAsync = async (milliseconds) => {
     await new Promise(resolve => setTimeout(resolve, milliseconds));
-  };
+};
 
 export const getShoes = async (req, res) => {
     try {
@@ -282,7 +285,7 @@ export const postProductToCart = async (req, res) => {
         let results = await checkProductInCart(id_user, id_product, id_size)
         if (results.length > 0) {
             return res.status(200).json({
-                massege: 'Sản phẩm đã có trong giỏ hàng',
+                massege: 'Sản phẩm đã có trong giỏ hàng, số lượng tăng',
             })
         } else {
             await createProductIntoCart(id_user, id_product, quantity, id_size)
@@ -385,37 +388,37 @@ export const postOrder = async (req, res) => {
 
     if (!token || !order_date || !address || !phoneNumber || !totalPrice || !payment || !status || !products) {
         return res.status(200).json({
-          message: 'oh NOOOOOO'
+            message: 'oh NOOOOOO'
         });
-      }
-    
-      let id_user;
-      Jwt.verify(token, '05092002', function (err, decoded) {
+    }
+
+    let id_user;
+    Jwt.verify(token, '05092002', function (err, decoded) {
         id_user = decoded.id;
-      });
-    
-      try {
+    });
+
+    try {
         const results = await createOrder(id_user, order_date, address, phoneNumber, totalPrice, payment, status);
         let orderId = results.insertId;
-    
+
         for (const e of products) {
-          try {
-            await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity);
-            await delayAsync(2000);
-            await updateQuantity(e.id_product, e.id_size, e.quantity);
-            await delayAsync(2000);
-          } catch (err) {
-            console.log("gặp lỗi này nè: ", err);
-          }
+            try {
+                await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity);
+                await delayAsync(2000);
+                await updateQuantity(e.id_product, e.id_size, e.quantity);
+                await delayAsync(2000);
+            } catch (err) {
+                console.log("gặp lỗi này nè: ", err);
+            }
         }
-    
+
         return res.status(200).json({
-          message: 'OK',
-          data: orderId
+            message: 'OK',
+            data: orderId
         });
-      } catch (error) {
+    } catch (error) {
         return res.status(409).json({ message: error.message });
-      }
+    }
 }
 
 export const getAllOrder = async (req, res) => {
@@ -429,7 +432,7 @@ export const getAllOrder = async (req, res) => {
         } catch (error) {
             res.status(409).json({ message: error.message });
         }
-        
+
     } else {
         try {
             let results = await readAllOrder();
@@ -655,3 +658,74 @@ export const putPayment = async (req, res) => {
     }
 
 }
+
+export const mainCompareImage = async (req, res) => {
+    if (!req.file) {
+        console.log('No image');
+        return;
+    }
+
+    const list = await getImage();
+    console.log(req.file.path);
+
+    for (const e of list) {
+        console.log(e);
+        await compareImages(req.file.path, e);
+    }
+
+    // fs.unlink(req.file.path, (err) => {
+    //     if (err) {
+    //         console.log(err);
+    //     }
+    // });
+};
+
+const compareImages = async (image1Path, image2Path) => {
+    
+    const pythonScriptPath = "d:/hoc/ttcs/services/cpImage.py";
+    const command = `python "${pythonScriptPath}" "${image1Path}" "${image2Path}"`;
+
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error.message}`)
+            return
+        }
+        // Parse the match ratio from the Python script's output
+        const matchRatio = stdout.trim()
+        // Determine if the images are similar based on a threshold
+        const threshold = 0.1 // Adjust the threshold as needed
+        console.log(matchRatio)
+        if (matchRatio > threshold) {
+            console.log('Images are similar.')
+        } else {
+            console.log('Images are not similar.')
+        }
+    });
+}
+
+export const getImage = async () => {
+    const storage = getStorage();
+
+    // Create a reference under which you want to list
+    const listRef = ref(storage, 'images');
+
+    try {
+        const res = await listAll(listRef);
+        const promises = res.items.map(async (itemRef) => {
+            try {
+                const url = await getDownloadURL(itemRef);
+                return url;
+            } catch (error) {
+                console.log(error);
+                return null; // Hoặc giá trị mặc định khi có lỗi xảy ra
+            }
+        });
+
+        const list = await Promise.all(promises);
+        const filteredList = list.filter(url => url !== null);
+        return filteredList;
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+};

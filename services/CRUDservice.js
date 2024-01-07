@@ -1,8 +1,4 @@
 import connection from '../config/database.js'
-import fs from 'fs'
-import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
-// import cv from "opencv4nodejs"
-
 
 export const readListShoes = async () => {
   return new Promise((resolve, reject) => {
@@ -401,6 +397,8 @@ export const readCart = async (id) => {
   })
 }
 
+
+
 export const checkProductInCart = async (id_user, id_product, id_size) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
@@ -424,7 +422,29 @@ export const checkProductInCart = async (id_user, id_product, id_size) => {
     })
   })
 }
-export const createProductIntoCart = async (id_user, id_product,quantity, id_size) => {
+
+export const updateQuantityIntoCart = async (id_user, id_product, quantity, id_size) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`UPDATE cart_item SET quantity = quantity + ? 
+        WHERE id_user = ? AND id_product = ? AND id_size`, [quantity, id_user, id_product, id_size], (error, results) => {
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
+export const createProductIntoCart = async (id_user, id_product, quantity, id_size) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
@@ -457,7 +477,7 @@ export const delProductInCart = async (id_user, id_product, id_size) => {
             console.error('Lỗi truy vấn: ', error);
             reject(error);
           } else {
-            console.log('>>>',results)
+            console.log('>>>', results)
             resolve(results);
           }
         })
@@ -553,7 +573,7 @@ export const readQuantity = async (id_product, size) => {
   })
 }
 
-export const updateQuantity = async (id_product,id_size, quantity) => {
+export const updateQuantity = async (id_product, id_size, quantity) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
@@ -655,7 +675,7 @@ export const readOderById = (id_user) => {
         reject(err)
       } else {
         connection.query(`SELECT * FROM orders WHERE id_user = ?
-        `,[id_user], (error, results) => {
+        `, [id_user], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn:', error);
@@ -783,80 +803,3 @@ export const updatePayment = async (id_order) => {
     })
   })
 }
-
-export const mainCompareImage = async (req, res) => {
-
-  function compareImages(imagePath1, imagePath2) {
-     // Đọc ảnh từ đường dẫn
-    const img1 = cv.imread(imagePath1);
-    const img2 = cv.imread(imagePath2);
-
-    // Chuyển đổi sang ảnh xám để dễ dàng so sánh
-    const grayImg1 = img1.bgrToGray();
-    const grayImg2 = img2.bgrToGray();
-
-    // Tính histogram của ảnh
-    const hist1 = cv.calcHist([grayImg1], [0], new cv.Mat(), [256], [0, 256]);
-    const hist2 = cv.calcHist([grayImg2], [0], new cv.Mat(), [256], [0, 256]);
-
-    // Tính sự tương đồng giữa hai histogram bằng cách sử dụng Bhattacharyya coefficient
-    const bhattacharyyaCoefficient = cv.compareHist(hist1, hist2, cv.HISTCMP_BHATTACHARYYA);
-
-    // Hiển thị kết quả
-    console.log(`Hệ số Bhattacharyya: ${bhattacharyyaCoefficient}`);
-
-    // Kiểm tra xem ảnh có gần giống nhau không
-    if (bhattacharyyaCoefficient > 0.8) {
-        console.log('Ảnh gần giống nhau.');
-    } else {
-        console.log('Ảnh không gần giống nhau.');
-    }
-  }
-
-  // Thực hiện so sánh giữa hai ảnh
-  compareImages('public/image/image1.jpg', 'public/image/image3.jpg');
-  // public/image/image1.jpg
-
-  // if (!req.file) {
-  //   console.log('no image')
-  // }
-
-  // const list = await getImage();
-
-  // list.forEach(async (e) => {
-  //   await compareImages(req.file.path, e);
-  // })
-  // fs.unlink(req.file.path, (err) => {
-  //   if (err) {
-  //     console.log(err)
-  //   }
-  // })
-}
-
-
-export const getImage = async () => {
-  const storage = getStorage();
-
-  // Create a reference under which you want to list
-  const listRef = ref(storage, 'images');
-
-  try {
-    const res = await listAll(listRef);
-    const promises = res.items.map(async (itemRef) => {
-      try {
-        const url = await getDownloadURL(itemRef);
-        return url;
-      } catch (error) {
-        console.log(error);
-        return null; // Hoặc giá trị mặc định khi có lỗi xảy ra
-      }
-    });
-
-    const list = await Promise.all(promises);
-    const filteredList = list.filter(url => url !== null);
-    return filteredList;
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-};
