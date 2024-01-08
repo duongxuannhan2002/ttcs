@@ -48,7 +48,8 @@ def compare_images(image_path1, image_url2):
 
 if __name__ == "__main__":
     # Lấy đường dẫn ảnh từ tham số dòng lệnh
-    image_path1 = "D:/hoc/ttcs/public/image/image1.jpg"
+    image_path1 = sys.argv[1]
+    # image_path1 = "D:/hoc/ttcs/public/image/image1.jpg"
     image_path2 = sys.argv[2]
 
     # Gọi hàm so sánh ảnh

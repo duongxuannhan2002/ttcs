@@ -40,6 +40,9 @@ import { setTimeout } from 'timers'
 import fs from 'fs'
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import { exec } from 'child_process'
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 const delayAsync = async (milliseconds) => {
     await new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -527,7 +530,7 @@ export const createPayment = (req, res) => {
     let tmnCode = "6RAZO02N"
     let secretKey = "BQVYJLEQMTAQKWXNGFYQPQAHKNPALWJN"
     let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-    let returnUrl = "http://localhost:3000/query"
+    let returnUrl = "http://localhost:3000/query-payment"
     let orderId = req.query.orderId
     let amount = req.query.amount
     let bankCode = ""
@@ -664,44 +667,38 @@ export const mainCompareImage = async (req, res) => {
         console.log('No image');
         return;
     }
-
+    let data = []
     const list = await getImage();
-    console.log(req.file.path);
-
     for (const e of list) {
-        console.log(e);
-        await compareImages(req.file.path, e);
+        let image = await compareImages(req.file.path, e, data);
+        data.push(image);
     }
-
     // fs.unlink(req.file.path, (err) => {
     //     if (err) {
     //         console.log(err);
     //     }
     // });
+    return res.status(200).json({
+        massege: 'OK',
+        data: data
+    })
 };
 
 const compareImages = async (image1Path, image2Path) => {
-    
     const pythonScriptPath = "d:/hoc/ttcs/services/cpImage.py";
     const command = `python "${pythonScriptPath}" "${image1Path}" "${image2Path}"`;
 
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error.message}`)
-            return
+    try {
+        const { stdout } = await execAsync(command);
+        const matchRatio = parseFloat(stdout.trim());
+
+        if (!isNaN(matchRatio) && matchRatio > 0.5 && matchRatio < 2) {
+            console.log('Images are similar.', image2Path);
         }
-        // Parse the match ratio from the Python script's output
-        const matchRatio = stdout.trim()
-        // Determine if the images are similar based on a threshold
-        const threshold = 0.1 // Adjust the threshold as needed
-        console.log(matchRatio)
-        if (matchRatio > threshold) {
-            console.log('Images are similar.')
-        } else {
-            console.log('Images are not similar.')
-        }
-    });
-}
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+};
 
 export const getImage = async () => {
     const storage = getStorage();
