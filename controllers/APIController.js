@@ -511,7 +511,7 @@ export const dropOrder = async (req, res) => {
 
 export const createPayment = (req, res) => {
 
-    if (!req.query.amount || !req.query.orderId) {
+    if (!req.query.amount) {
         return res.status(200).json({
             massege: 'Oh noooo',
         })
@@ -531,7 +531,7 @@ export const createPayment = (req, res) => {
     let secretKey = "BQVYJLEQMTAQKWXNGFYQPQAHKNPALWJN"
     let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
     let returnUrl = "http://localhost:3000/query-payment"
-    let orderId = req.query.orderId
+    let orderId = createDate
     let amount = req.query.amount
     let bankCode = ""
 
@@ -665,13 +665,17 @@ export const putPayment = async (req, res) => {
 export const mainCompareImage = async (req, res) => {
     if (!req.file) {
         console.log('No image');
-        return;
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
     }
-    let data = []
+    let data = [];
     const list = await getImage();
     for (const e of list) {
         let image = await compareImages(req.file.path, e, data);
-        data.push(image);
+        if(image != null){
+            data.push(image);
+        }
     }
     // fs.unlink(req.file.path, (err) => {
     //     if (err) {
@@ -694,6 +698,7 @@ const compareImages = async (image1Path, image2Path) => {
 
         if (!isNaN(matchRatio) && matchRatio > 0.5 && matchRatio < 2) {
             console.log('Images are similar.', image2Path);
+            return image2Path
         }
     } catch (error) {
         console.error(`Error: ${error.message}`);
