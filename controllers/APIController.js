@@ -673,15 +673,15 @@ export const mainCompareImage = async (req, res) => {
     const list = await getImage();
     for (const e of list) {
         let image = await compareImages(req.file.path, e, data);
-        if(image != null){
+        if (image != null) {
             data.push(image);
         }
     }
-    // fs.unlink(req.file.path, (err) => {
-    //     if (err) {
-    //         console.log(err);
-    //     }
-    // });
+    fs.unlink(req.file.path, (err) => {
+        if (err) {
+            console.log(err);
+        }
+    });
     return res.status(200).json({
         massege: 'OK',
         data: data
@@ -694,10 +694,11 @@ const compareImages = async (image1Path, image2Path) => {
 
     try {
         const { stdout } = await execAsync(command);
+        // console.log('Command Output (stdout):', stdout);
         const matchRatio = parseFloat(stdout.trim());
-
-        if (!isNaN(matchRatio) && matchRatio > 0.5 && matchRatio < 2) {
-            console.log('Images are similar.', image2Path);
+        // console.log('>>>>>', matchRatio)
+        if (!isNaN(matchRatio) && matchRatio > 25) {
+            console.log('score: ', matchRatio, '   ->>>>Images are similar.', image2Path);
             return image2Path
         }
     } catch (error) {

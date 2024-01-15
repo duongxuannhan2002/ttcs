@@ -1,25 +1,7 @@
-import {createShoes, updateShoes, deleteShoes} from '../services/CRUDservice.js'
+import {createShoes, updateShoes, deleteShoes, createSizeProduct} from '../services/CRUDservice.js'
 import uploadImageFireBase from './uploadImage.js'
 import multer from 'multer'
 import path from 'path'
-export const getHomePage = (req, res) => {
-    res.send('<h1>Xin chào</h1>')
-}
-export const getAdminPage = (req, res) => {
-    res.render('adminHome.ejs')
-}
-
-export const getAdminAdd = (req, res) => {
-    res.render('adminAdd.ejs')
-}
-
-export const getAdminUpdate = (req, res) => {
-    res.render('adminUpdate.ejs')
-}
-
-export const getAdminDelete = (req, res) => {
-    res.render('adminDelete.ejs')
-}
 
 export const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -47,13 +29,29 @@ export let upload = multer({ storage: storage, fileFilter: imageFilter });
 export const postCreateShoes = async (req, res) => {
     let imageString = await uploadImageFireBase(req.file)
     console.log('imageString', imageString)
+
     let name = req.body.name
     let price = req.body.price
-    let quantity = req.body.quantity
     let brand = req.body.brand
     let discount = req.body.discount
-    await createShoes(name, price, quantity, imageString, brand, discount,'0')
-    res.send(`<img src="${imageString}">`)
+    let size = JSON.parse(req.body.sizes)
+    console.log(size)
+    if(!name||!price||!brand||!discount||!size){
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        let id_product = await createShoes(name, price, imageString, brand, discount)
+        size.forEach(async e => {
+            await createSizeProduct(e.id_size, id_product.insertId, e.quantity, 0)
+        });
+        return res.status(200).json({
+            massege: 'OK',
+        })
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
 }
 
 export const postUpdateShoes = async (req, res) => {

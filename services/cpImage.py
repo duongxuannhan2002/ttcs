@@ -3,48 +3,46 @@ import numpy as np
 import urllib.request
 import sys
 
-def url_to_image(url):
-    resp = urllib.request.urlopen(url)
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-    return image
+# def url_to_image(url):
+#     resp = urllib.request.urlopen(url)
+#     image = np.asarray(bytearray(resp.read()), dtype="uint8")
+#     image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+#     return image
 
 def compare_images(image_path1, image_url2):
     # Đọc ảnh màu từ file
-    img1 = cv2.imread(image_path1)
-    
-    # Tải ảnh trực tuyến từ URL
-    img2 = url_to_image(image_url2)
+    img1 = cv2.imread(image_path1, cv2.IMREAD_GRAYSCALE)
 
-    # Chuyển đổi ảnh sang ảnh xám
-    gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-    gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+# Load the second image from a URL
+    url = image_url2  # Thay thế URL của bạn ở đây
+    req = urllib.request.urlopen(url)
+    arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
+    img2 = cv2.imdecode(arr, -1)  # -1 đồng nghĩa với việc giữ nguyên định dạng màu
 
-    # Khởi tạo bộ trích xuất đặc trưng SIFT
+# Initialize SIFT detector
     sift = cv2.SIFT_create()
 
-    # Tìm key points và descriptors với SIFT
-    kp1, des1 = sift.detectAndCompute(gray1, None)
-    kp2, des2 = sift.detectAndCompute(gray2, None)
+# Detect key points and compute descriptors
+    keypoints1, descriptors1 = sift.detectAndCompute(img1, None)
+    keypoints2, descriptors2 = sift.detectAndCompute(img2, None)
 
-    # Sử dụng BFMatcher để so sánh descriptors
+# Initialize the Brute-Force Matcher
     bf = cv2.BFMatcher()
-    matches = bf.knnMatch(des1, des2, k=2)
 
-    # Lọc kết quả sử dụng ratio test
+# Match descriptors
+    matches = bf.knnMatch(descriptors1, descriptors2, k=2)
+
+# Apply ratio test
     good_matches = []
     for m, n in matches:
         if m.distance < 0.75 * n.distance:
             good_matches.append(m)
 
-    # Vẽ các matches trên ảnh
-    img_matches = cv2.drawMatches(img1, kp1, img2, kp2, good_matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+# Print the number of good matches
+    # print(f"Number of good matches: {len(good_matches)}")
+    point = len(good_matches)
 
-    # Hiển thị ảnh với các matches
-
-    # Tính tỉ lệ matches giữa hai ảnh
-    match_ratio = len(good_matches) / min(len(kp1), len(kp2))
-    sys.stdout.write(str(match_ratio))
+    sys.stdout.write(str(point))
 
 if __name__ == "__main__":
     # Lấy đường dẫn ảnh từ tham số dòng lệnh

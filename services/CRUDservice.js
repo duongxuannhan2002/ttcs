@@ -7,7 +7,9 @@ export const readListShoes = async () => {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(`SELECT * FROM product`, (error, results) => {
+        connection.query(`SELECT p.*, SUM(sp.sold) AS sold FROM product p 
+        JOIN size_product sp ON p.id = sp.id_product 
+        GROUP BY p.id, p.name;`, (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn:', error);
@@ -22,16 +24,16 @@ export const readListShoes = async () => {
   });
 }
 
-export const createShoes = async (name, price, quantity, imageString, brand, discount, sold) => {
+export const createShoes = async (name, price, imageString, brand, discount) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(` INSERT INTO product(name, price, quantity, image, brand, discount, sold) 
-        values(?,?,?,?,?,?,?)
-        `, [name, price, quantity, imageString, brand, discount, sold], (error, results) => {
+        connection.query(` INSERT INTO product(name, price, image, brand, discount) 
+        values(?,?,?,?,?)
+        `, [name, price, imageString, brand, discount], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn:', error);
@@ -263,8 +265,9 @@ export const read1Product = async (id) => {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(`SELECT product.* FROM product
-    WHERE product.id = ?`, [id], (error, results) => {
+        connection.query(`SELECT p.*, SUM(sp.sold) AS sold 
+        FROM product p JOIN size_product sp ON p.id = sp.id_product 
+        WHERE p.id=? GROUP BY p.id, p.name;`, [id], (error, results) => {
           if (error) {
             console.error('Lỗi truy vấn:', error);
             reject(error);
@@ -286,6 +289,28 @@ export const readIdSize = async (size) => {
         reject(err)
       } else {
         connection.query(`SELECT id From size WHERE vl = ?`, [size], (error, results) => {
+          connection.release()
+          if (error) {
+            console.error('Lỗi truy vấn:', error);
+            reject(error);
+          } else {
+            // console.log(results);
+            resolve(results);
+          }
+        });
+      }
+    })
+  })
+}
+
+export const createSizeProduct = async(id_size, id_product, quantity, sold) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`INSERT INTO size_product (id_size, id_product, quantity, sold) VALUES (?,?,?,?); `, [id_size,id_product,quantity,sold], (error, results) => {
           connection.release()
           if (error) {
             console.error('Lỗi truy vấn:', error);
