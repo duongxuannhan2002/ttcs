@@ -7,7 +7,7 @@ export const readListShoes = async () => {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(`SELECT p.*, SUM(sp.sold) AS sold FROM product p 
+        connection.query(`SELECT p.*, SUM(sp.sold) AS sold, SUM(sp.quantity) AS quantity  FROM product p 
         JOIN size_product sp ON p.id = sp.id_product 
         GROUP BY p.id, p.name;`, (error, results) => {
           connection.release();
