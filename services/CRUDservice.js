@@ -48,7 +48,7 @@ export const createShoes = async (name, price, imageString, brand, discount) => 
   });
 }
 
-export const updateShoes = async (name, price, quantity, imageString, brand, discount, sold, id) => {
+export const updateShoes = async (id, price, discount) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
@@ -56,9 +56,9 @@ export const updateShoes = async (name, price, quantity, imageString, brand, dis
         reject(err)
       } else {
         connection.query(` UPDATE product SET
-        name=?, price=?, quantity=?, image=?, brand=?, discount=?, sold=?
+        price=?, discount=?
         Where id=?    
-        `, [name, price, quantity, imageString, brand, discount, sold, id], (error, results) => {
+        `, [price, discount, id], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn:', error);
@@ -816,6 +816,94 @@ export const updatePayment = async (id_order) => {
         connection.query(`UPDATE orders
         SET payment = online
         WHERE id = ?`, [id_order], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
+export const readPass = (id, pass) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`SELECT * FROM users u WHERE id = ? ANd pass = ?`, [id, pass], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
+export const updatePass = (newPass,id) =>{
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`UPDATE users
+        SET pass = ?
+        WHERE id = ?`, [newPass,id], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
+export const checkSizeProduct = (id_product,id_size) =>{
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`SELECT * FROM size_product WHERE id_product = ? AND id_size = ?`, [id_product,id_size], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}
+
+export const updateToChangeQuantity = (id_product, id_size, quantity) =>{
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`UPDATE size_product
+        SET quantity = ?
+        WHERE id_product = ? AND id_size = ?`, [quantity, id_product, id_size], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn: ', error);

@@ -29,7 +29,9 @@ import {
     updatePayment,
     updateQuantity,
     readOderById,
-    readIdSize
+    readIdSize,
+    readPass,
+    updatePass
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 import moment from 'moment'
@@ -507,6 +509,33 @@ export const dropOrder = async (req, res) => {
     return res.status(200).json({
         massege: 'OK',
     })
+}
+
+export const changePass = async (req, res) => {
+    let id = req.query.id
+    let pass = req.query.pass
+    let newPass = req.query.newPass
+
+    if (!id || !pass | !newPass) {
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        let results = await readPass(id, pass)
+        if (results.length!=0) {
+            await updatePass(newPass, id)
+            return res.status(200).json({
+                massege: 'Thay đổi thành công',
+            })
+        } else {
+            return res.status(200).json({
+                massege: 'Mật khẩu cũ không đúng',
+            })
+        }
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
 }
 
 export const createPayment = (req, res) => {

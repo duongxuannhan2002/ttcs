@@ -26,7 +26,8 @@ import {
     queryPayment,
     putPayment,
     getImage,
-    mainCompareImage}  from '../controllers/APIController.js'
+    mainCompareImage,
+    changePass}  from '../controllers/APIController.js'
 import { postCreateShoes, postDeleteShoes, postUpdateShoes } from "../controllers/homeController.js";
 
 const storage = multer.diskStorage({
@@ -54,6 +55,7 @@ router.get('/get-detail-order',getProductInOrder)
 // router.get('/test',mainCompareImage)
 router.get('/payment', createPayment)
 router.get('/query-payment',queryPayment)
+router.get('/change-pass', changePass)
 
 router.post('/post-user', postUser)
 router.post('/post-to-login', postToLogin)
