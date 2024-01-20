@@ -916,3 +916,25 @@ export const updateToChangeQuantity = (id_product, id_size, quantity) =>{
     })
   })
 }
+
+export const deleteSize = (id_product) => {
+  return new Promise((resolve, reject) => {
+    connection.getConnection((err, connection) => {
+      if (err) {
+        console.error('lỗi kết nối: ', err);
+        reject(err)
+      } else {
+        connection.query(`DELETE FROM size_product
+        WHERE id_product = ?`, [id_product], (error, results) => {
+          connection.release();
+          if (error) {
+            console.error('Lỗi truy vấn: ', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        })
+      }
+    })
+  })
+}

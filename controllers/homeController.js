@@ -1,4 +1,4 @@
-import { createShoes, updateShoes, deleteShoes, createSizeProduct, checkSizeProduct, updateToChangeQuantity } from '../services/CRUDservice.js'
+import { createShoes, updateShoes, deleteShoes, createSizeProduct, checkSizeProduct, updateToChangeQuantity, deleteSize } from '../services/CRUDservice.js'
 import uploadImageFireBase from './uploadImage.js'
 import multer from 'multer'
 import path from 'path'
@@ -59,7 +59,6 @@ export const postUpdateShoes = async (req, res) => {
     let price = req.body.price
     let discount = req.body.discount
     let describe = req.body.describe
-    let size = req.body.sizes
     if (!id || !price || !discount) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -67,13 +66,6 @@ export const postUpdateShoes = async (req, res) => {
     }
     try {
         await updateShoes(id, price, discount, describe)
-        size.forEach(async e => {
-            let results = await checkSizeProduct(id, e.id_size)
-            if (results.length != 0) {
-
-            } else
-                await createSizeProduct(e.id_size, id, e.quantity, 0)
-        });
         return res.status(200).json({
             massege: 'OK',
         })
@@ -99,13 +91,13 @@ export const putUpdateQuantity = async (req, res) => {
     } catch (error) {
         return res.status(409)({ message: error.message });
     }
-
 }
 
 export const postDeleteShoes = async (req, res) => {
     let id = req.query.id_shoes
     try {
-        await deleteShoes(id)
+        await deleteSize(id);
+        await deleteShoes(id);
         return res.status(200).json({
             massege: 'OK'
         })
