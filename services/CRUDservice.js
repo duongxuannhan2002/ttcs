@@ -24,16 +24,16 @@ export const readListShoes = async () => {
   });
 }
 
-export const createShoes = async (name, price, imageString, brand, discount) => {
+export const createShoes = async (name, price, imageString, brand, discount, describe) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(` INSERT INTO product(name, price, image, brand, discount) 
-        values(?,?,?,?,?)
-        `, [name, price, imageString, brand, discount], (error, results) => {
+        connection.query(` INSERT INTO product(name, price, image, brand, discount,describe) 
+        values(?,?,?,?,?,?)
+        `, [name, price, imageString, brand, discount,describe], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn:', error);
