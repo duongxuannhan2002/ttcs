@@ -28,7 +28,7 @@ import {
     getImage,
     mainCompareImage,
     changePass}  from '../controllers/APIController.js'
-import { postCreateShoes, postDeleteShoes, postUpdateShoes } from "../controllers/homeController.js";
+import { postCreateShoes, postDeleteShoes, postUpdateShoes, putUpdateQuantity } from "../controllers/homeController.js";
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -63,8 +63,9 @@ router.post('/post-product-to-cart', postProductToCart)
 router.post('/post-image',upload.single('image'), mainCompareImage)
 router.post('/post-order', postOrder)
 router.post('/create-shoes',upload.single('image'), postCreateShoes)
-router.post('/update-shoes',upload.single('image'), postUpdateShoes)
-router.post('/delete-shoes',postDeleteShoes)
+router.post('/update-shoes',postUpdateShoes)
+router.post('/update-size',putUpdateQuantity)
+
 
 
 router.put('/put-user', putUser)
@@ -76,5 +77,6 @@ router.delete('/delete-user', delUser)
 router.delete('/delete-product-in-cart',dropProductInCart)
 router.delete('/delete-cart',dropCart)
 router.delete('/delete-order',dropOrder)
+router.delete('/delete-shoes',postDeleteShoes)
 
 export default router
