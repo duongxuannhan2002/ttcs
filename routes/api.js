@@ -66,8 +66,6 @@ router.post('/create-shoes',upload.single('image'), postCreateShoes)
 router.post('/update-shoes',postUpdateShoes)
 router.post('/update-size',putUpdateQuantity)
 
-
-
 router.put('/put-user', putUser)
 router.put('/put-cart',putCart)
 router.put('/put-order',putOrder)

@@ -718,7 +718,7 @@ export const mainCompareImage = async (req, res) => {
 };
 
 const compareImages = async (image1Path, image2Path) => {
-    const pythonScriptPath = "d:/hoc/ttcs/services/cpImage.py";
+    const pythonScriptPath = "./services/cpImage.py";
     const command = `python "${pythonScriptPath}" "${image1Path}" "${image2Path}"`;
 
     try {
