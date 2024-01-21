@@ -34,7 +34,7 @@ export const postCreateShoes = async (req, res) => {
     let price = req.body.price
     let brand = req.body.brand
     let discount = req.body.discount
-    let describe = req.body.describe
+    let describ = req.body.describ
     let size = JSON.parse(req.body.sizes)
     if (!name || !price || !brand || !discount || !size) {
         return res.status(200).json({
@@ -42,7 +42,7 @@ export const postCreateShoes = async (req, res) => {
         })
     }
     try {
-        let id_product = await createShoes(name, price, imageString, brand, discount, describe)
+        let id_product = await createShoes(name, price, imageString, brand, discount, describ)
         size.forEach(async e => {
             await createSizeProduct(e.id_size, id_product.insertId, e.quantity, 0)
         });
@@ -58,14 +58,14 @@ export const postUpdateShoes = async (req, res) => {
     let id = req.body.id_shoes
     let price = req.body.price
     let discount = req.body.discount
-    let describe = req.body.describe
+    let describ = req.body.describ
     if (!id || !price || !discount) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
     try {
-        await updateShoes(id, price, discount, describe)
+        await updateShoes(id, price, discount, describ)
         return res.status(200).json({
             massege: 'OK',
         })

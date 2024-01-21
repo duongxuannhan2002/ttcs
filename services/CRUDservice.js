@@ -24,16 +24,16 @@ export const readListShoes = async () => {
   });
 }
 
-export const createShoes = async (name, price, imageString, brand, discount, describe) => {
+export const createShoes = async (name, price, imageString, brand, discount, describ) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
         console.error('lỗi kết nối: ', err);
         reject(err)
       } else {
-        connection.query(` INSERT INTO product(name, price, image, brand, discount,describe) 
+        connection.query(` INSERT INTO product(name, price, image, brand, discount,describ) 
         values(?,?,?,?,?,?)
-        `, [name, price, imageString, brand, discount,describe], (error, results) => {
+        `, [name, price, imageString, brand, discount,describ], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn:', error);
@@ -48,7 +48,7 @@ export const createShoes = async (name, price, imageString, brand, discount, des
   });
 }
 
-export const updateShoes = async (id, price, discount) => {
+export const updateShoes = async (id, price, discount, describ) => {
   return new Promise((resolve, reject) => {
     connection.getConnection((err, connection) => {
       if (err) {
@@ -56,9 +56,9 @@ export const updateShoes = async (id, price, discount) => {
         reject(err)
       } else {
         connection.query(` UPDATE product SET
-        price=?, discount=?
+        price=?, discount=?, describ = ?
         Where id=?    
-        `, [price, discount, id], (error, results) => {
+        `, [price, discount, describ, id], (error, results) => {
           connection.release();
           if (error) {
             console.error('Lỗi truy vấn:', error);
