@@ -43,12 +43,10 @@ import fs from 'fs'
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import { exec } from 'child_process'
 import { promisify } from 'util';
+import { log } from 'console'
 
 const execAsync = promisify(exec);
 
-const delayAsync = async (milliseconds) => {
-    await new Promise(resolve => setTimeout(resolve, milliseconds));
-};
 
 export const getShoes = async (req, res) => {
     try {
@@ -81,7 +79,7 @@ export const postUser = async (req, res) => {
     let pass = req.body.pass
     if (!email || !name || !pass || !phoneNumber) {
         return res.status(200).json({
-            message: 'oh NOOOOOO'
+            message: 'vui lòng nhập đầy đủ thông tin'
         })
     }
 
@@ -89,7 +87,7 @@ export const postUser = async (req, res) => {
         let results = await checkPhoneNumber(phoneNumber)
         if (results.length > 0) {
             return res.status(200).json({
-                message: 'Số điện thoại đã được đăng ký'
+                error: 'Số điện thoại đã được đăng ký'
             })
         } else {
             try {
@@ -187,21 +185,27 @@ export const get1Product = async (req, res) => {
             message: 'oh NOOOOOO'
         })
     }
-    console.log(req.query.id)
 
     try {
         let results1 = await read1Product(req.query.id)
-        let results2 = await readSizeProduct(req.query.id)
+        try {
+            let results2 = await readSizeProduct(req.query.id)
 
-        const sizes = results2.map(item => item.size);
-        results1[0].size = sizes.join(',');
+            const sizes = results2.map(item => item.size);
+            results1[0].size = sizes.join(',');
 
-        return res.status(200).json({
-            massege: 'ok',
-            data: results1
-        })
+            return res.status(200).json({
+                massege: 'ok',
+                data: results1
+            })
+        } catch (err) {
+            res.status(409).json({ message: err.message });
+            console.log(err);
+        }
+
     } catch (error) {
         res.status(409).json({ message: error.message });
+        console.log(error);
     }
 }
 
@@ -209,12 +213,13 @@ export const postToLogin = async (req, res) => {
 
     if (!req.body.phoneNumber || !req.body.pass) {
         return res.status(200).json({
-            message: 'oh NOOOOOO'
+            message: 'Vui lòng nhập đủ thông tin'
         })
     }
+
     try {
         let results = await logIn(req.body.phoneNumber, req.body.pass)
-        if (results) {
+        if (results.length !== 0) {
             let token = Jwt.sign({ id: results[0].id }, '05092002');
             Jwt.verify(token, '05092002', function (err, decoded) {
                 console.log('a', decoded) // bar
@@ -251,14 +256,20 @@ export const getProductBought = async (req, res) => {
 
 export const getCart = async (req, res) => {
     let token = req.query.token
-    if (!req.query.token) {
+    if (!req.query.token|| req.query.token=='null') {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
+    console.log(req.query);
     let id
     Jwt.verify(token, '05092002', function (err, decoded) {
-        id = decoded.id
+        try {
+            id = decoded.id
+        } catch (error) {
+            console.log(error)
+        }
+
     });
     try {
         let results = await readCart(id)
@@ -287,15 +298,15 @@ export const postProductToCart = async (req, res) => {
         id_user = decoded.id
     });
     try {
-        let results = await checkProductInCart(id_user, id_product, id_size)
+        let results = await checkProductInCart(id_user, id_product, size)
         if (results.length > 0) {
             return res.status(200).json({
-                massege: 'Sản phẩm đã có trong giỏ hàng, số lượng tăng',
+                messErr: 'Sản phẩm đã có sẵn trong giỏ hàng',
             })
         } else {
             await createProductIntoCart(id_user, id_product, quantity, id_size)
             return res.status(200).json({
-                massege: 'OK',
+                messSuc: 'Thêm vào giỏ hàng thành công',
             })
         }
     } catch (error) {
@@ -318,7 +329,7 @@ export const dropProductInCart = async (req, res) => {
     try {
         await delProductInCart(id_user, id_product, id_size);
         return res.status(200).json({
-            massege: 'OK',
+            message: 'OK',
         })
     } catch (error) {
         return res.status(409).json({ message: error.message });
@@ -382,7 +393,8 @@ export const getQuantity = async (req, res) => {
 }
 
 export const postOrder = async (req, res) => {
-    let token = req.body.token
+    console.log(req.body);
+    let id_user = req.body.id_user
     let order_date = req.body.order_date
     let address = req.body.address
     let phoneNumber = req.body.phoneNumber
@@ -391,16 +403,13 @@ export const postOrder = async (req, res) => {
     let status = req.body.status
     let products = req.body.products
 
-    if (!token || !order_date || !address || !phoneNumber || !totalPrice || !payment || !status || !products) {
+    console.log(req.body);
+    if (!id_user === null || !order_date || !address || !phoneNumber || !totalPrice || !payment || !status || !products) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
-        });
+        })
     }
 
-    let id_user;
-    Jwt.verify(token, '05092002', function (err, decoded) {
-        id_user = decoded.id;
-    });
 
     try {
         const results = await createOrder(id_user, order_date, address, phoneNumber, totalPrice, payment, status);
@@ -408,17 +417,19 @@ export const postOrder = async (req, res) => {
 
         for (const e of products) {
             try {
-                await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity);
-                await delayAsync(2000);
+
+                await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity)
                 await updateQuantity(e.id_product, e.id_size, e.quantity);
-                await delayAsync(2000);
             } catch (err) {
                 console.log("gặp lỗi này nè: ", err);
             }
         }
 
+        if (id_user !== '0') {
+            await delCart(id_user)
+        }
         return res.status(200).json({
-            message: 'OK',
+            message: 'Thành công',
             data: orderId
         });
     } catch (error) {
@@ -518,19 +529,19 @@ export const changePass = async (req, res) => {
 
     if (!id || !pass | !newPass) {
         return res.status(200).json({
-            message: 'oh NOOOOOO'
+            error: 'Vui lòng nhập đủ thông tin'
         })
     }
     try {
         let results = await readPass(id, pass)
-        if (results.length!=0) {
+        if (results.length != 0) {
             await updatePass(newPass, id)
             return res.status(200).json({
-                massege: 'Thay đổi thành công',
+                message: 'Thay đổi thành công',
             })
         } else {
             return res.status(200).json({
-                massege: 'Mật khẩu cũ không đúng',
+                error: 'Mật khẩu cũ không đúng',
             })
         }
     } catch (error) {
