@@ -289,7 +289,7 @@ export const postProductToCart = async (req, res) => {
     let size = req.body.size
     let quantity = req.body.quantity
     let id_user
-    // console.log(req.body);
+    console.log(req.body);
     
     if (!token || !id_product || !size || !quantity) {
         return res.status(200).json({
@@ -422,9 +422,10 @@ export const postOrder = async (req, res) => {
 
         for (const e of products) {
             try {
-
-                await createProductInOrder(orderId, e.id_product, e.id_size, e.quantity)
-                await updateQuantity(e.id_product, e.id_size, e.quantity);
+                console.log(e);
+                let id_size = await checkIdSize(e.id_size)
+                await createProductInOrder(orderId, e.id_product, id_size[0].id, e.quantity)
+                await updateQuantity(e.id_product, id_size[0].id, e.quantity);
             } catch (err) {
                 console.log("gặp lỗi này nè: ", err);
             }
