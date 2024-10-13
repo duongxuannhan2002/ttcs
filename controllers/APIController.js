@@ -73,6 +73,7 @@ export const getUser = async (req, res) => {
 }
 
 export const postUser = async (req, res) => {
+    console.log(req.body)
     let name = req.body.name
     let email = req.body.email
     let phoneNumber = req.body.phoneNumber
@@ -286,9 +287,10 @@ export const postProductToCart = async (req, res) => {
     let token = req.body.token
     let id_product = req.body.id_product
     let size = req.body.size
-    let id_size = req.body.id_size
     let quantity = req.body.quantity
     let id_user
+    // console.log(req.body);
+    
     if (!token || !id_product || !size || !quantity) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -298,13 +300,16 @@ export const postProductToCart = async (req, res) => {
         id_user = decoded.id
     });
     try {
-        let results = await checkProductInCart(id_user, id_product, size)
+        let id_size = await checkIdSize(size)
+        let results = await checkProductInCart(id_user, id_product, id_size[0].id)
+        console.log(results);
+        
         if (results.length > 0) {
             return res.status(200).json({
                 messErr: 'Sản phẩm đã có sẵn trong giỏ hàng',
             })
         } else {
-            await createProductIntoCart(id_user, id_product, quantity, id_size)
+            await createProductIntoCart(id_user, id_product, quantity, id_size[0].id)
             return res.status(200).json({
                 messSuc: 'Thêm vào giỏ hàng thành công',
             })
