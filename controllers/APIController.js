@@ -257,7 +257,7 @@ export const getProductBought = async (req, res) => {
 
 export const getCart = async (req, res) => {
     let token = req.query.token
-    if (!req.query.token|| req.query.token=='null') {
+    if (!req.query.token || req.query.token == 'null') {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
@@ -290,7 +290,7 @@ export const postProductToCart = async (req, res) => {
     let quantity = req.body.quantity
     let id_user
     console.log(req.body);
-    
+
     if (!token || !id_product || !size || !quantity) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -303,7 +303,7 @@ export const postProductToCart = async (req, res) => {
         let id_size = await checkIdSize(size)
         let results = await checkProductInCart(id_user, id_product, id_size[0].id)
         console.log(results);
-        
+
         if (results.length > 0) {
             return res.status(200).json({
                 messErr: 'Sản phẩm đã có sẵn trong giỏ hàng',
@@ -332,7 +332,8 @@ export const dropProductInCart = async (req, res) => {
     }
 
     try {
-        await delProductInCart(id_user, id_product, id_size);
+        let id_size = await checkIdSize(size)
+        await delProductInCart(id_user, id_product, id_size[0].id);
         return res.status(200).json({
             message: 'OK',
         })
@@ -553,6 +554,51 @@ export const changePass = async (req, res) => {
     } catch (error) {
         return res.status(409).json({ message: error.message });
     }
+}
+
+import { ProductCode, VnpLocale, dateFormat } from 'vnpay';
+import { VNPay, ignoreLogger } from 'vnpay';
+
+const vnpay = new VNPay({
+    tmnCode: '6RAZO02N',
+    secureSecret: 'BQVYJLEQMTAQKWXNGFYQPQAHKNPALWJN',
+    vnpayHost: 'https://sandbox.vnpayment.vn',
+    testMode: true, // tùy chọn, ghi đè vnpayHost thành sandbox nếu là true
+    hashAlgorithm: 'SHA512', // tùy chọn
+
+    /**
+     * Sử dụng enableLog để bật/tắt logger
+     * Nếu enableLog là false, loggerFn sẽ không được sử dụng trong bất kỳ phương thức nào
+     */
+    enableLog: true, // optional
+
+    /**
+     * Hàm `loggerFn` sẽ được gọi để ghi log
+     * Mặc định, loggerFn sẽ ghi log ra console
+     * Bạn có thể ghi đè loggerFn để ghi log ra nơi khác
+     *
+     * `ignoreLogger` là một hàm không làm gì cả
+     */
+    loggerFn: ignoreLogger, // optional
+});
+
+export const testPay = async (req, res) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const paymentUrl = vnpay.buildPaymentUrl({
+        vnp_Amount: 10000,
+        vnp_IpAddr: '13.160.92.202',
+        vnp_TxnRef: '12345',
+        vnp_OrderInfo: 'Thanh toan don hang 12345',
+        vnp_OrderType: ProductCode.Other,
+        vnp_ReturnUrl: 'http://localhost:3000/vnpay-return',
+        vnp_Locale: VnpLocale.VN, // 'vn' hoặc 'en'
+        vnp_CreateDate: dateFormat(new Date()), // tùy chọn, mặc định là hiện tại
+        vnp_ExpireDate: dateFormat(tomorrow), // tùy chọn
+    });
+    return res.status(200).json({
+        message: paymentUrl,
+    })
 }
 
 export const createPayment = (req, res) => {
