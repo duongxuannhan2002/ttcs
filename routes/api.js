@@ -28,7 +28,7 @@ import {
     getImage,
     mainCompareImage,
     changePass,
-    testPay}  from '../controllers/APIController.js'
+    }  from '../controllers/APIController.js'
 import { postCreateShoes, postDeleteShoes, postUpdateShoes, putUpdateQuantity } from "../controllers/homeController.js";
 
 const storage = multer.diskStorage({
