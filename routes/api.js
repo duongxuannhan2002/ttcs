@@ -57,7 +57,7 @@ router.get('/get-detail-order',getProductInOrder)
 router.get('/payment', createPayment)
 router.get('/query-payment',queryPayment)
 router.get('/change-pass', changePass)
-router.get('/test', testPay)
+// router.get('/test', testPay)
 
 
 router.post('/post-user', postUser)
