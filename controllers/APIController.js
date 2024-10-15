@@ -557,50 +557,50 @@ export const changePass = async (req, res) => {
     }
 }
 
-import { ProductCode, VnpLocale, dateFormat } from 'vnpay';
-import { VNPay, ignoreLogger } from 'vnpay';
+// import { ProductCode, VnpLocale, dateFormat } from 'vnpay';
+// import { VNPay, ignoreLogger } from 'vnpay';
 
-const vnpay = new VNPay({
-    tmnCode: '6RAZO02N',
-    secureSecret: 'BQVYJLEQMTAQKWXNGFYQPQAHKNPALWJN',
-    vnpayHost: 'https://sandbox.vnpayment.vn',
-    testMode: true, // tùy chọn, ghi đè vnpayHost thành sandbox nếu là true
-    hashAlgorithm: 'SHA512', // tùy chọn
+// const vnpay = new VNPay({
+//     tmnCode: '6RAZO02N',
+//     secureSecret: 'BQVYJLEQMTAQKWXNGFYQPQAHKNPALWJN',
+//     vnpayHost: 'https://sandbox.vnpayment.vn',
+//     testMode: true, // tùy chọn, ghi đè vnpayHost thành sandbox nếu là true
+//     hashAlgorithm: 'SHA512', // tùy chọn
 
-    /**
-     * Sử dụng enableLog để bật/tắt logger
-     * Nếu enableLog là false, loggerFn sẽ không được sử dụng trong bất kỳ phương thức nào
-     */
-    enableLog: true, // optional
+//     /**
+//      * Sử dụng enableLog để bật/tắt logger
+//      * Nếu enableLog là false, loggerFn sẽ không được sử dụng trong bất kỳ phương thức nào
+//      */
+//     enableLog: true, // optional
 
-    /**
-     * Hàm `loggerFn` sẽ được gọi để ghi log
-     * Mặc định, loggerFn sẽ ghi log ra console
-     * Bạn có thể ghi đè loggerFn để ghi log ra nơi khác
-     *
-     * `ignoreLogger` là một hàm không làm gì cả
-     */
-    loggerFn: ignoreLogger, // optional
-});
+//     /**
+//      * Hàm `loggerFn` sẽ được gọi để ghi log
+//      * Mặc định, loggerFn sẽ ghi log ra console
+//      * Bạn có thể ghi đè loggerFn để ghi log ra nơi khác
+//      *
+//      * `ignoreLogger` là một hàm không làm gì cả
+//      */
+//     loggerFn: ignoreLogger, // optional
+// });
 
-export const testPay = async (req, res) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const paymentUrl = vnpay.buildPaymentUrl({
-        vnp_Amount: 10000,
-        vnp_IpAddr: '13.160.92.202',
-        vnp_TxnRef: '12345',
-        vnp_OrderInfo: 'Thanh toan don hang 12345',
-        vnp_OrderType: ProductCode.Other,
-        vnp_ReturnUrl: 'http://localhost:3000/vnpay-return',
-        vnp_Locale: VnpLocale.VN, // 'vn' hoặc 'en'
-        vnp_CreateDate: dateFormat(new Date()), // tùy chọn, mặc định là hiện tại
-        vnp_ExpireDate: dateFormat(tomorrow), // tùy chọn
-    });
-    return res.status(200).json({
-        message: paymentUrl,
-    })
-}
+// export const testPay = async (req, res) => {
+//     const tomorrow = new Date();
+//     tomorrow.setDate(tomorrow.getDate() + 1);
+//     const paymentUrl = vnpay.buildPaymentUrl({
+//         vnp_Amount: 10000,
+//         vnp_IpAddr: '13.160.92.202',
+//         vnp_TxnRef: '12345',
+//         vnp_OrderInfo: 'Thanh toan don hang 12345',
+//         vnp_OrderType: ProductCode.Other,
+//         vnp_ReturnUrl: 'http://localhost:3000/vnpay-return',
+//         vnp_Locale: VnpLocale.VN, // 'vn' hoặc 'en'
+//         vnp_CreateDate: dateFormat(new Date()), // tùy chọn, mặc định là hiện tại
+//         vnp_ExpireDate: dateFormat(tomorrow), // tùy chọn
+//     });
+//     return res.status(200).json({
+//         message: paymentUrl,
+//     })
+// }
 
 export const createPayment = (req, res) => {
 
