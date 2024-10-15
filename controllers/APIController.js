@@ -324,6 +324,8 @@ export const dropProductInCart = async (req, res) => {
     let id_product = req.body.id_product
     let size = req.body.size
 
+    console.log(req.body);
+    
     if (!id_user || !id_product || !size ) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
