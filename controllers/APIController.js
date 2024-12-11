@@ -63,13 +63,12 @@ export const getShoes = async (req, res) => {
 export const getUser = async (req, res) => {
     if (req.query.token) {
         let id
-        Jwt.verify(token, '05092002', function (err, decoded) {
+        Jwt.verify(req.query.token, '05092002', function (err, decoded) {
             try {
                 id = decoded.id
             } catch (error) {
                 console.log(error)
-            }
-            
+            }        
         });
         try {
             let results = await readUser(id)
