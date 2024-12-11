@@ -1,3 +1,4 @@
+import { log } from '@tensorflow/tfjs';
 import pool from '../config/database.js'
 
 
@@ -46,6 +47,8 @@ export const readListShoes = async () => {
 };
 
 export const createShoes = async (name, price, imageString, brand, discount, describ) => {
+  console.log('trong ', name, price, imageString, brand, discount, describ );
+  
   return queryWithConnection(async (connection) => {
     const sql = `INSERT INTO product(name, price, image, brand, discount, describ) VALUES (?, ?, ?, ?, ?, ?)`;
     const [results] = await connection.execute(sql, [name, price, imageString, brand, discount, describ]);
@@ -73,6 +76,14 @@ export const readListUser = async () => {
   return queryWithConnection(async (connection) => {
     const sql = `SELECT * FROM users`;
     const [results] = await connection.execute(sql);
+    return results;
+  });
+};
+
+export const readUser = async (id) => {
+  return queryWithConnection(async (connection) => {
+    const sql = `SELECT * FROM users Where id = ?`;
+    const [results] = await connection.execute(sql, [id]);
     return results;
   });
 };
@@ -239,6 +250,8 @@ export const checkIdSize = async (size) => {
     const sql = `
     SELECT id from size WHERE vl = ?`;
     const [results] = await connection.execute(sql, [size]);
+    console.log(results);
+    
     return results;
   });
   

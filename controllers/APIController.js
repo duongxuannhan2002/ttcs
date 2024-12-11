@@ -61,14 +61,35 @@ export const getShoes = async (req, res) => {
 }
 
 export const getUser = async (req, res) => {
-    try {
-        let results = await readListUser()
-        return res.status(200).json({
-            massege: 'ok',
-            data: results
-        })
-    } catch (error) {
-        res.status(409).json({ message: error.message });
+    if (req.query.token) {
+        let id
+        Jwt.verify(token, '05092002', function (err, decoded) {
+            try {
+                id = decoded.id
+            } catch (error) {
+                console.log(error)
+            }
+            
+        });
+        try {
+            let results = await readUser(id)
+            return res.status(200).json({
+                massege: 'ok',
+                data: results
+            })
+        } catch (error) {
+            res.status(409).json({ message: error.message });
+        }
+    } else {
+        try {
+            let results = await readListUser()
+            return res.status(200).json({
+                massege: 'ok',
+                data: results
+            })
+        } catch (error) {
+            res.status(409).json({ message: error.message });
+        }
     }
 }
 
@@ -325,8 +346,8 @@ export const dropProductInCart = async (req, res) => {
     let size = req.body.size
 
     console.log(req.body);
-    
-    if (!id_user || !id_product || !size ) {
+
+    if (!id_user || !id_product || !size) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
@@ -425,7 +446,7 @@ export const postOrder = async (req, res) => {
         for (const e of products) {
             try {
                 console.log(e);
-                let id_size = await checkIdSize(e.id_size)
+                let id_size = await checkIdSize(e.size)
                 await createProductInOrder(orderId, e.id_product, id_size[0].id, e.quantity)
                 await updateQuantity(e.id_product, id_size[0].id, e.quantity);
             } catch (err) {
