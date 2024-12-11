@@ -31,7 +31,8 @@ import {
     readOderById,
     readIdSize,
     readPass,
-    updatePass
+    updatePass,
+    readUser
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 import moment from 'moment'
