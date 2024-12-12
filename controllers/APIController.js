@@ -641,13 +641,13 @@ export const createPayment = (req, res) => {
         req.connection.socket.remoteAddress;
 
 
-    let tmnCode = "6RAZO02N"
-    let secretKey = "BQVYJLEQMTAQKWXNGFYQPQAHKNPALWJN"
+    let tmnCode = "59ND9W60"
+    let secretKey = "FO7QOAR8JRN8RJPEI6CLN4GCV4QKFJQI"
     let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
     let returnUrl = "https://next-shop-gules.vercel.app/query-payment"
     let orderId = createDate
     let amount = req.query.amount
-    let bankCode = ""
+    let bankCode = "VNBANK"
 
     let locale = "vn";
     let currCode = 'VND';
