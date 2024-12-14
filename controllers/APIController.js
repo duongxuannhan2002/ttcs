@@ -32,7 +32,8 @@ import {
     readIdSize,
     readPass,
     updatePass,
-    readUser
+    readUser,
+    updateOrderStatus
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 import moment from 'moment'
@@ -524,6 +525,26 @@ export const putOrder = async (req, res) => {
 
     try {
         await updateOrder(id_order, address, phoneNumber, status)
+    } catch (error) {
+        return res.status(409).json({ message: error.message });
+    }
+    return res.status(200).json({
+        massege: 'OK',
+    })
+}
+
+export const putOrderStatus = async (req, res) => {
+    let status = req.body.status
+    let id_order = req.body.id_order
+
+    if (!status || !id_order) {
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+
+    try {
+        await updateOrderStatus(id_order, status)
     } catch (error) {
         return res.status(409).json({ message: error.message });
     }

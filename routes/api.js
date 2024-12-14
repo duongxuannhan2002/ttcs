@@ -28,6 +28,7 @@ import {
     getImage,
     mainCompareImage,
     changePass,
+    putOrderStatus,
     }  from '../controllers/APIController.js'
 import { postCreateShoes, postDeleteShoes, postUpdateShoes, putUpdateQuantity } from "../controllers/homeController.js";
 
@@ -68,6 +69,7 @@ router.post('/post-order', postOrder)
 router.post('/create-shoes',upload.single('image'), postCreateShoes)
 router.post('/update-shoes',postUpdateShoes)
 router.post('/update-size',putUpdateQuantity)
+router.post('/update-status',putOrderStatus)
 
 router.put('/put-user', putUser)
 router.put('/put-cart',putCart)

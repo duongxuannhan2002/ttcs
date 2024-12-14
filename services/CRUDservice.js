@@ -334,8 +334,19 @@ export const updateOrder = async (id_order, address, phoneNumber, status) => {
     const sql = `
     UPDATE orders
         SET address = ?, phone_number = ?, status = ? 
-        WHERE id_order`;
+        WHERE id_order=?`;
     const [results] = await connection.execute(sql, [address, phoneNumber, status, id_order]);
+    return results;
+  });
+}
+
+export const updateOrderStatus = async (id_order, status) => {
+  return queryWithConnection(async (connection) => {
+    const sql = `
+    UPDATE orders
+        SET status = ? 
+        WHERE id=?`;
+    const [results] = await connection.execute(sql, [status, id_order]);
     return results;
   });
 }
