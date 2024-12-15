@@ -454,10 +454,6 @@ export const postOrder = async (req, res) => {
                 console.log("gặp lỗi này nè: ", err);
             }
         }
-
-        if (id_user !== '0') {
-            await delCart(id_user)
-        }
         return res.status(200).json({
             message: 'Thành công',
             data: orderId
