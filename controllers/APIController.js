@@ -661,7 +661,7 @@ export const createPayment = (req, res) => {
     let tmnCode = "59ND9W60"
     let secretKey = "FO7QOAR8JRN8RJPEI6CLN4GCV4QKFJQI"
     let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-    let returnUrl = "localhost:3000"
+    let returnUrl = "https://next-shop-gules.vercel.app/query-payment"
     let orderId = createDate
     let amount = req.query.amount
     let bankCode = "VNBANK"
