@@ -450,6 +450,7 @@ export const postOrder = async (req, res) => {
                 let id_size = await checkIdSize(e.size)
                 await createProductInOrder(orderId, e.id_product, id_size[0].id, e.quantity)
                 await updateQuantity(e.id_product, id_size[0].id, e.quantity);
+                await delProductInCart(id_user, e.id_product, id_size[0].id);
             } catch (err) {
                 console.log("gặp lỗi này nè: ", err);
             }
