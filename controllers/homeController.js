@@ -1,5 +1,5 @@
 import { log } from 'console';
-import { createShoes, updateShoes, deleteShoes, createSizeProduct, checkSizeProduct, updateToChangeQuantity, deleteSize, checkIdSize } from '../services/CRUDservice.js'
+import { createShoes, updateShoes, deleteShoes, createSizeProduct, checkSizeProduct, updateToChangeQuantity, deleteSize, checkIdSize, updateQuantity, updateSizeQuantity } from '../services/CRUDservice.js'
 import uploadImageFireBase from './uploadImage.js'
 import multer from 'multer'
 import path from 'path'
@@ -65,6 +65,9 @@ export const postUpdateShoes = async (req, res) => {
     let price = req.body.price
     let discount = req.body.discount
     let describ = req.body.describ
+    let sizes = req.body.sizes
+    console.log(req.body);
+    
     if (!id || !price || !discount) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
@@ -72,6 +75,10 @@ export const postUpdateShoes = async (req, res) => {
     }
     try {
         await updateShoes(id, price, discount, describ)
+        for (let key in sizes) {
+            let id_size = await checkIdSize(key)
+            await updateSizeQuantity(id,id_size[0].id,sizes[key])
+        }
         return res.status(200).json({
             massege: 'OK',
         })

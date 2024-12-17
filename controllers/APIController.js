@@ -514,6 +514,9 @@ export const putOrder = async (req, res) => {
     let status = req.body.status
     let id_order = req.body.id_order
 
+    console.log(req.body);
+    
+
     if (!address || !phoneNumber || !status || !id_order) {
         return res.status(200).json({
             message: 'oh NOOOOOO'

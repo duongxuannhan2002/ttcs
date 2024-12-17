@@ -279,6 +279,17 @@ export const updateQuantity = async (id_product, id_size, quantity) => {
   });
 }
 
+export const updateSizeQuantity = async (id_product, id_size, quantity) => {
+  return queryWithConnection(async (connection) => {
+    const sql = `
+    UPDATE size_product
+        SET quantity = ?
+        WHERE id_size=? AND id_product=?`;
+    const [results] = await connection.execute(sql, [quantity, id_size, id_product]);
+    return results;
+  });
+}
+
 export const createOrder = async (id_user, order_date, address, phoneNumber, totalPrice, payment, status) => {
   return queryWithConnection(async (connection) => {
     const sql = `
@@ -334,7 +345,7 @@ export const updateOrder = async (id_order, address, phoneNumber, status) => {
     const sql = `
     UPDATE orders
         SET address = ?, phone_number = ?, status = ? 
-        WHERE id_order=?`;
+        WHERE id=?`;
     const [results] = await connection.execute(sql, [address, phoneNumber, status, id_order]);
     return results;
   });
