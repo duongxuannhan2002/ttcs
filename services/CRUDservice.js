@@ -313,7 +313,7 @@ export const createProductInOrder = async (id_order, id_product, id_size, quanti
 export const readAllOrder = async () => {
   return queryWithConnection(async (connection) => {
     const sql = `
-    SELECT * FROM orders`;
+    SELECT * FROM orders ORDER BY id DESC`;
     const [results] = await connection.execute(sql);
     return results;
   });
@@ -322,7 +322,7 @@ export const readAllOrder = async () => {
 export const readOderById = (id_user) => {
   return queryWithConnection(async (connection) => {
     const sql = `
-    SELECT * FROM orders WHERE id_user = ?`;
+    SELECT * FROM orders WHERE id_user = ? ORDER BY id DESC`;
     const [results] = await connection.execute(sql, [id_user]);
     return results;
   });
