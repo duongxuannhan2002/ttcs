@@ -47,8 +47,8 @@ export const readListShoes = async () => {
 };
 
 export const createShoes = async (name, price, imageString, brand, discount, describ) => {
-  console.log('trong ', name, price, imageString, brand, discount, describ );
-  
+  console.log('trong ', name, price, imageString, brand, discount, describ);
+
   return queryWithConnection(async (connection) => {
     const sql = `INSERT INTO product(name, price, image, brand, discount, describ) VALUES (?, ?, ?, ?, ?, ?)`;
     const [results] = await connection.execute(sql, [name, price, imageString, brand, discount, describ]);
@@ -56,10 +56,10 @@ export const createShoes = async (name, price, imageString, brand, discount, des
   });
 };
 
-export const updateShoes = async (id, price, discount, describ) => {
+export const updateShoes = async (id, price, discount, describ, brand) => {
   return queryWithConnection(async (connection) => {
-    const sql = `UPDATE product SET price = ?, discount = ?, describ = ? WHERE id = ?`;
-    const [results] = await connection.execute(sql, [price, discount, describ, id]);
+    const sql = `UPDATE product SET price = ?, discount = ?, describ = ?, brand= ? WHERE id = ?`;
+    const [results] = await connection.execute(sql, [price, discount, describ, brand, id]);
     return results;
   });
 };
@@ -106,11 +106,33 @@ export const updateUser = async (name, email, phoneNumber, id) => {
 
 export const deleteUser = async (id) => {
   return queryWithConnection(async (connection) => {
-    const sql = `DELETE FROM users WHERE id = ?`;
+    const sql = `
+                DELETE FROM users WHERE id = ?`;
     const [results] = await connection.execute(sql, [id]);
     return results;
   });
 };
+
+export const deleteOrderItemToDeleteUser = async (id) => {
+  return queryWithConnection(async (connection) => {
+    const sql = `DELETE FROM order_item 
+                WHERE id_order IN (SELECT id FROM orders WHERE id_user = ?);
+                `;
+    const [results] = await connection.execute(sql, [id]);
+    return results;
+  });
+};
+
+export const deleteOrderToDeleteUser = async (id) => {
+  return queryWithConnection(async (connection) => {
+    const sql = `
+              DELETE FROM orders WHERE id_user = ?;
+              `;
+    const [results] = await connection.execute(sql, [id]);
+    return results;
+  });
+};
+
 
 export const readListShoesByBrand = async (brand) => {
   return queryWithConnection(async (connection) => {
@@ -251,10 +273,10 @@ export const checkIdSize = async (size) => {
     SELECT id from size WHERE vl = ?`;
     const [results] = await connection.execute(sql, [size]);
     console.log(results);
-    
+
     return results;
   });
-  
+
 }
 export const readQuantity = async (id_product, size) => {
   return queryWithConnection(async (connection) => {
@@ -263,7 +285,7 @@ export const readQuantity = async (id_product, size) => {
         from size_product 
         JOIN size ON size.id = size_product.id_size 
         WHERE size.vl = ? AND size_product.id_product = ?;`;
-    const [results] = await connection.execute(sql,[size, id_product]);
+    const [results] = await connection.execute(sql, [size, id_product]);
     return results;
   });
 }
@@ -395,32 +417,32 @@ export const readPass = (id, pass) => {
   return queryWithConnection(async (connection) => {
     const sql = `
     SELECT * FROM users u WHERE id = ? ANd pass = ?`;
-    const [results] = await connection.execute(sql, [id,pass]);
+    const [results] = await connection.execute(sql, [id, pass]);
     return results;
   });
 }
 
-export const updatePass = (newPass,id) =>{
+export const updatePass = (newPass, id) => {
   return queryWithConnection(async (connection) => {
     const sql = `
     UPDATE users
         SET pass = ?
         WHERE id = ?`;
-    const [results] = await connection.execute(sql, [newPass,id]);
+    const [results] = await connection.execute(sql, [newPass, id]);
     return results;
   });
 }
 
-export const checkSizeProduct = (id_product,id_size) =>{
+export const checkSizeProduct = (id_product, id_size) => {
   return queryWithConnection(async (connection) => {
     const sql = `
     SELECT * FROM size_product WHERE id_product = ? AND id_size = ?`;
-    const [results] = await connection.execute(sql, [id_product,id_size]);
+    const [results] = await connection.execute(sql, [id_product, id_size]);
     return results;
   });
 }
 
-export const updateToChangeQuantity = (id_product, id_size, quantity) =>{
+export const updateToChangeQuantity = (id_product, id_size, quantity) => {
   return queryWithConnection(async (connection) => {
     const sql = `
     UPDATE size_product

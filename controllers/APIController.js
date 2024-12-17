@@ -33,7 +33,9 @@ import {
     readPass,
     updatePass,
     readUser,
-    updateOrderStatus
+    updateOrderStatus,
+    deleteOrderItemToDeleteUser,
+    deleteOrderToDeleteUser
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 import moment from 'moment'
@@ -158,6 +160,9 @@ export const delUser = async (req, res) => {
         })
     }
     try {
+        await delCart(id)
+        await deleteOrderItemToDeleteUser(id)
+        await deleteOrderToDeleteUser(id)
         await deleteUser(id)
         return res.status(200).json({
             message: 'ok men'

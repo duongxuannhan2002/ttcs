@@ -65,6 +65,7 @@ export const postUpdateShoes = async (req, res) => {
     let price = req.body.price
     let discount = req.body.discount
     let describ = req.body.describ
+    let brand = req.body.brand
     let sizes = req.body.sizes
     console.log(req.body);
     
@@ -74,7 +75,7 @@ export const postUpdateShoes = async (req, res) => {
         })
     }
     try {
-        await updateShoes(id, price, discount, describ)
+        await updateShoes(id, price, discount, describ, brand)
         for (let key in sizes) {
             let id_size = await checkIdSize(key)
             await updateSizeQuantity(id,id_size[0].id,sizes[key])
