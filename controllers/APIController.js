@@ -532,7 +532,7 @@ export const postOrder = async (req, res) => {
 }
 
 export const getAllOrderOfUser = async (req, res) => {
-    let id = req.user.id
+    let id = req.query.id
     try {
         let results = await readOderById(id)
         results.forEach(e => {
