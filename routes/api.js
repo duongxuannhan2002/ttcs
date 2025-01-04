@@ -29,8 +29,12 @@ import {
     mainCompareImage,
     changePass,
     putOrderStatus,
+    verifyOtp,
+    getAllUser,
+    getAllOrderOfUser,
     }  from '../controllers/APIController.js'
 import { postCreateShoes, postDeleteShoes, postUpdateShoes, putUpdateQuantity } from "../controllers/homeController.js";
+import Jwt from 'jsonwebtoken'
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -42,44 +46,76 @@ const storage = multer.diskStorage({
   });
 const upload = multer({ storage: storage });
 
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ message: 'Token is required' });
+
+  Jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ message: 'Invalid or expired token' });
+    req.user = {
+      id: decoded.id,
+      role: decoded.role
+    };
+    next();
+  });
+};
+
+const authorizeRole = (roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return res.status(403).json({ message: 'Access denied: insufficient permissions' });
+  }
+  next();
+};
+
+
 const router = express.Router();
-router.get('/get-shoes', getShoes)
-router.get('/get-shoes-by-brand', getShoesByBrand)
-router.get('/get-shoes-by-search', getShoesBySearch)
-router.get('/get-1-product', get1Product)
-router.get('/get-user', getUser)
-router.get('/get-product-bought', getProductBought)
-router.get('/get-cart', getCart)
-router.get('/get-quantity',getQuantity)
-router.get('/get-image',getImage)
-router.get('/get-all-order',getAllOrder)
-router.get('/get-detail-order',getProductInOrder)
+router.get('/get-shoes', authenticateToken,authorizeRole(['User', 'Admin']) ,getShoes)
+router.get('/get-shoes-by-brand', authenticateToken,authorizeRole(['User', 'Admin']) , getShoesByBrand)
+router.get('/get-shoes-by-search', authenticateToken ,authorizeRole(['User', 'Admin']), getShoesBySearch)
+router.get('/get-1-product', authenticateToken ,authorizeRole(['User','Admin']), get1Product)
+router.get('/get-user', authenticateToken ,authorizeRole(['User', 'Admin']), getUser)
+router.get('/get-all-user', authenticateToken ,authorizeRole(['Admin']), getAllUser)
+router.get('/get-product-bought', authenticateToken ,authorizeRole(['Admin']), getProductBought)
+router.get('/get-cart', authenticateToken ,authorizeRole(['User', 'Admin']), getCart)
+router.get('/get-quantity', authenticateToken ,authorizeRole(['User', 'Admin']),getQuantity)
+router.get('/get-image', authenticateToken ,authorizeRole(['User', 'Admin']),getImage)
+// router.get('/get-user-order', authenticateToken ,authorizeRole(['User']),getAllOrderOfUser)
+router.get('/get-user-order', getAllOrderOfUser)
+
+router.get('/get-all-order', authenticateToken ,authorizeRole(['Admin']),getAllOrder)
+router.get('/get-detail-order', authenticateToken ,authorizeRole(['User', 'Admin']),getProductInOrder)
 // router.get('/test',mainCompareImage)
-router.get('/payment', createPayment)
-router.get('/query-payment',queryPayment)
-router.get('/change-pass', changePass)
+router.get('/payment' , authenticateToken ,authorizeRole(['User', 'Admin']), createPayment)
+router.get('/query-payment', authenticateToken ,authorizeRole(['User', 'Admin']),queryPayment)
+router.get('/change-pass', authenticateToken ,authorizeRole(['User', 'Admin']), changePass)
 // router.get('/test', testPay)
 
 
 router.post('/post-user', postUser)
 router.post('/post-to-login', postToLogin)
-router.post('/post-product-to-cart', postProductToCart)
+router.post('/post-product-to-cart', authenticateToken ,authorizeRole(['User', 'Admin']), postProductToCart)
 router.post('/post-image',upload.single('image'), mainCompareImage)
+// router.post('/post-order', authenticateToken ,authorizeRole(['User', 'Admin']), postOrder)
 router.post('/post-order', postOrder)
-router.post('/create-shoes',upload.single('image'), postCreateShoes)
-router.post('/update-shoes',postUpdateShoes)
-router.post('/update-size',putUpdateQuantity)
-router.post('/update-status',putOrderStatus)
+router.post('/create-shoes', authenticateToken,authorizeRole(['Admin']), upload.single('image'), postCreateShoes)
+router.post('/update-shoes', authenticateToken ,authorizeRole(['Admin']),postUpdateShoes)
+router.post('/update-size', authenticateToken ,authorizeRole(['Admin']),putUpdateQuantity)
+router.post('/update-status', authenticateToken ,authorizeRole(['Admin']),putOrderStatus)
+router.post('/verify-otp', verifyOtp)
 
-router.put('/put-user', putUser)
-router.put('/put-cart',putCart)
-router.put('/put-order',putOrder)
-router.put('/put-payment-order',putPayment)
+router.put('/put-user', authenticateToken ,authorizeRole(['User', 'Admin']), putUser)
+router.put('/put-cart', authenticateToken ,authorizeRole(['User', 'Admin']),putCart)
+router.put('/put-order', authenticateToken ,authorizeRole(['Admin']),putOrder)
+router.put('/put-payment-order', authenticateToken ,authorizeRole(['Admin']),putPayment)
 
-router.delete('/delete-user', delUser)
-router.delete('/delete-product-in-cart',dropProductInCart)
-router.delete('/delete-cart',dropCart)
-router.delete('/delete-order',dropOrder)
-router.delete('/delete-shoes',postDeleteShoes)
+router.delete('/delete-user', authenticateToken ,authorizeRole(['Admin']), delUser)
+router.delete('/delete-product-in-cart', authenticateToken ,authorizeRole(['User', 'Admin']),dropProductInCart)
+router.delete('/delete-cart', authenticateToken ,authorizeRole(['User', 'Admin']),dropCart)
+router.delete('/delete-order', authenticateToken ,authorizeRole(['Admin']),dropOrder)
+router.delete('/delete-shoes', authenticateToken ,authorizeRole(['Admin']),postDeleteShoes)
+
+
 
 export default router

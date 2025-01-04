@@ -150,10 +150,18 @@ export const readListShoesBySearch = async (key) => {
   });
 };
 
-export const logIn = async (phoneNumber, pass) => {
+export const logIn = async (email) => {
   return queryWithConnection(async (connection) => {
-    const sql = `SELECT id, phone_number, name, pass FROM users WHERE phone_number = ? AND pass = ?`;
-    const [results] = await connection.execute(sql, [phoneNumber, pass]);
+    const sql = `SELECT pass FROM users WHERE email = ?`;
+    const [results] = await connection.execute(sql, [email]);
+    return results;
+  });
+};
+
+export const readWithEmail = async (email) => {
+  return queryWithConnection(async (connection) => {
+    const sql = `SELECT * FROM users WHERE email=?`;
+    const [results] = await connection.execute(sql, [email]);
     return results;
   });
 };
@@ -182,6 +190,15 @@ export const checkPhoneNumber = async (phoneNumber) => {
     return results;
   });
 };
+
+export const checkEmail = async (email) => {
+  return queryWithConnection(async (connection) => {
+    const sql = `SELECT * FROM users WHERE LOWER(email) = LOWER(?)`;
+    const [results] = await connection.execute(sql, [email]);
+    return results;
+  });
+};
+
 
 export const readListProductBought = async (id_user) => {
   return queryWithConnection(async (connection) => {

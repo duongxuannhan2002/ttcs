@@ -35,19 +35,23 @@ import {
     readUser,
     updateOrderStatus,
     deleteOrderItemToDeleteUser,
-    deleteOrderToDeleteUser
+    deleteOrderToDeleteUser,
+    readWithEmail,
+    checkEmail
 } from '../services/CRUDservice.js'
 import Jwt from 'jsonwebtoken'
 import moment from 'moment'
 import querystring from 'qs'
-import crypto from 'crypto'
+import crypto, { verify } from 'crypto'
 import request from 'request'
 import { setTimeout } from 'timers'
 import fs from 'fs'
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import { exec } from 'child_process'
 import { promisify } from 'util';
-import { log } from 'console'
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const execAsync = promisify(exec);
 
@@ -65,25 +69,19 @@ export const getShoes = async (req, res) => {
 }
 
 export const getUser = async (req, res) => {
-    if (req.query.token) {
-        let id
-        Jwt.verify(req.query.token, '05092002', function (err, decoded) {
-            try {
-                id = decoded.id
-            } catch (error) {
-                console.log(error)
-            }        
-        });
-        try {
-            let results = await readUser(id)
-            return res.status(200).json({
-                massege: 'ok',
-                data: results
-            })
-        } catch (error) {
-            res.status(409).json({ message: error.message });
-        }
-    } else {
+    let id = req.user.id
+    try {
+        let results = await readUser(id)
+        return res.status(200).json({
+            massege: 'ok',
+            data: results
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
+}
+
+export const getAllUser = async (req, res) => {
         try {
             let results = await readListUser()
             return res.status(200).json({
@@ -93,42 +91,50 @@ export const getUser = async (req, res) => {
         } catch (error) {
             res.status(409).json({ message: error.message });
         }
-    }
 }
 
+import bcrypt from 'bcrypt';
+import { decryptData, encryptData } from '../services/AES.js'
+
 export const postUser = async (req, res) => {
-    console.log(req.body)
-    let name = req.body.name
-    let email = req.body.email
-    let phoneNumber = req.body.phoneNumber
-    let pass = req.body.pass
+    const { name, email, phoneNumber, pass } = req.body;
+
     if (!email || !name || !pass || !phoneNumber) {
-        return res.status(200).json({
-            message: 'vui lòng nhập đầy đủ thông tin'
-        })
+        return res.status(400).json({
+            message: 'Vui lòng nhập đầy đủ thông tin',
+        });
     }
 
     try {
-        let results = await checkPhoneNumber(phoneNumber)
-        if (results.length > 0) {
-            return res.status(200).json({
-                error: 'Số điện thoại đã được đăng ký'
-            })
-        } else {
-            try {
-                console.log(pass)
-                await createUser(name, email, pass, phoneNumber)
-                return res.status(200).json({
-                    message: 'ok men',
-                })
-            } catch (error) {
-                res.status(409).json({ message: error.message });
-            }
+        const resultsPhone = await checkPhoneNumber(phoneNumber);
+        const resultsEmail = await checkEmail(email);
+
+        if (resultsPhone.length > 0) {
+            return res.status(409).json({
+                message: 'Số điện thoại đã được đăng ký',
+            });
         }
+
+        if (resultsEmail.length > 0) {
+            return res.status(409).json({
+                message: 'Email đã được đăng ký',
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(pass, 10);
+        await createUser(name, email, hashedPassword, phoneNumber);
+
+        return res.status(201).json({
+            message: 'Tạo tài khoản thành công',
+        });
     } catch (error) {
-        res.status(409).json({ message: error.message });
+        console.error(error);
+        return res.status(500).json({
+            message: 'Có lỗi xảy ra, vui lòng thử lại sau',
+        });
     }
-}
+};
+
 
 export const putUser = async (req, res) => {
     let name = req.body.name
@@ -153,23 +159,23 @@ export const putUser = async (req, res) => {
 }
 
 export const delUser = async (req, res) => {
-    let id = req.query.id
-    if (!id) {
-        return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-    try {
-        await delCart(id)
-        await deleteOrderItemToDeleteUser(id)
-        await deleteOrderToDeleteUser(id)
-        await deleteUser(id)
-        return res.status(200).json({
-            message: 'ok men'
-        })
-    } catch (error) {
-        res.status(409).json({ message: error.message });
-    }
+        let id = req.query.id
+        if (!id) {
+            return res.status(200).json({
+                message: 'oh NOOOOOO'
+            })
+        }
+        try {
+            await delCart(id)
+            await deleteOrderItemToDeleteUser(id)
+            await deleteOrderToDeleteUser(id)
+            await deleteUser(id)
+            return res.status(200).json({
+                message: 'ok men'
+            })
+        } catch (error) {
+            res.status(409).json({ message: error.message });
+        }
 }
 
 export const getShoesByBrand = async (req, res) => {
@@ -237,33 +243,95 @@ export const get1Product = async (req, res) => {
     }
 }
 
-export const postToLogin = async (req, res) => {
+let otpStore = {};
 
-    if (!req.body.phoneNumber || !req.body.pass) {
+export const postToLogin = async (req, res) => {
+    const { email, pass } = req.body;
+    if (!email || !pass) {
         return res.status(200).json({
             message: 'Vui lòng nhập đủ thông tin'
-        })
+        });
     }
 
     try {
-        let results = await logIn(req.body.phoneNumber, req.body.pass)
-        if (results.length !== 0) {
-            let token = Jwt.sign({ id: results[0].id }, '05092002');
-            Jwt.verify(token, '05092002', function (err, decoded) {
-                console.log('a', decoded) // bar
-            });
-            return res.status(200).json({
-                data: results[0], token
-            })
+        let results = await logIn(email);
+        if (await bcrypt.compare(pass, results[0].pass)) {
+            let userOTP = generateOTP();
+            let otpExpires = Date.now() + 5 * 60 * 1000; // Hết hạn sau 5 phút
+            otpStore[email] = { userOTP, otpExpires };
+            try {
+                await transporter.sendMail({
+                    from: "duongxuannhan01@gmail.com",
+                    to: email,
+                    subject: "Your OTP Code",
+                    text: `Your OTP code is: ${userOTP}`,
+                });
+
+                res.send("OTP sent to your email.");
+            } catch (err) {
+                console.error(err);
+                res.status(500).send("Failed to send OTP.");
+            }
         } else {
             return res.status(200).json({
                 message: 'Tài khoản hoặc mật khẩu không chính xác'
-            })
+            });
         }
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
+};
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: "duongxuannhan01@gmail.com",
+        pass: "ypgz yfhv cegy ahly",
+    },
+});
+
+const generateOTP = () => {
+    return crypto.randomInt(100000, 999999).toString(); // 6 chữ số ngẫu nhiên
 }
+
+export const verifyOtp = async (req, res) => {
+    const { otp, email } = req.body;
+
+    if (!otp) {
+        return res.status(400).send("OTP is required.");
+    }
+
+    // Kiểm tra OTP và thời gian hết hạn cho người dùng từ otpStore
+    if (!otpStore[email]) {
+        return res.status(400).send("OTP not found.");
+    }
+
+    let { userOTP, otpExpires } = otpStore[email];
+
+    if (Date.now() > otpExpires) {
+        delete otpStore[email];
+        return res.status(400).send("OTP expired.");
+    }
+
+    if (otp === userOTP) {
+        delete otpStore[email];
+        try {
+            let results = await readWithEmail(email);
+            let payload = {
+                id: results[0].id,
+                role: 'user'
+            };
+            let token = await Jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+            return res.status(200).json({
+                data: token
+            });
+        } catch (error) {
+            return res.send(error);
+        }
+    } else {
+        return res.status(400).send("Invalid OTP.");
+    }
+};
 
 export const getProductBought = async (req, res) => {
     if (!req.query.id) {
@@ -311,26 +379,19 @@ export const getCart = async (req, res) => {
 }
 
 export const postProductToCart = async (req, res) => {
-    let token = req.body.token
     let id_product = req.body.id_product
     let size = req.body.size
     let quantity = req.body.quantity
-    let id_user
-    console.log(req.body);
+    let id_user = req.user.id
 
     if (!token || !id_product || !size || !quantity) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
-    Jwt.verify(token, '05092002', function (err, decoded) {
-        id_user = decoded.id
-    });
     try {
         let id_size = await checkIdSize(size)
         let results = await checkProductInCart(id_user, id_product, id_size[0].id)
-        console.log(results);
-
         if (results.length > 0) {
             return res.status(200).json({
                 messErr: 'Sản phẩm đã có sẵn trong giỏ hàng',
@@ -427,7 +488,6 @@ export const getQuantity = async (req, res) => {
 }
 
 export const postOrder = async (req, res) => {
-    console.log(req.body);
     let id_user = req.body.id_user
     let order_date = req.body.order_date
     let address = req.body.address
@@ -436,16 +496,18 @@ export const postOrder = async (req, res) => {
     let payment = req.body.payment
     let status = req.body.status
     let products = req.body.products
-
-    console.log(req.body);
-    if (!id_user === null || !order_date || !address || !phoneNumber || !totalPrice || !payment || !status || !products) {
+    if (!id_user === null || !order_date || !address || !phoneNumber || !totalPrice || !payment || !status) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
     }
-
-
     try {
+        try {
+            phoneNumber = await encryptData(phoneNumber);
+            address = await encryptData(address);
+        } catch (error) {
+            return res.status(500).json({ message: 'Error encrypting sensitive data', error: error.message });
+        }
         const results = await createOrder(id_user, order_date, address, phoneNumber, totalPrice, payment, status);
         let orderId = results.insertId;
 
@@ -469,21 +531,30 @@ export const postOrder = async (req, res) => {
     }
 }
 
-export const getAllOrder = async (req, res) => {
-    if (req.query.id_user) {
-        try {
-            let results = await readOderById(req.query.id_user)
-            return res.status(200).json({
-                massege: 'ok',
-                data: results
-            })
-        } catch (error) {
-            res.status(409).json({ message: error.message });
-        }
+export const getAllOrderOfUser = async (req, res) => {
+    let id = req.user.id
+    try {
+        let results = await readOderById(id)
+        results.forEach(e => {
+            e.phone_number = decryptData(e.phone_number)
+            e.address = decryptData(e.address)
+        });
+        return res.status(200).json({
+            massege: 'ok',
+            data: results
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
+}
 
-    } else {
+export const getAllOrder = async (req, res) => {
         try {
             let results = await readAllOrder();
+            results.forEach(e => {
+                e.phone_number = decryptData(e.phone_number)
+                e.address = decryptData(e.address)
+            });
             return res.status(200).json({
                 massege: 'ok',
                 data: results
@@ -491,9 +562,6 @@ export const getAllOrder = async (req, res) => {
         } catch (error) {
             res.status(409).json({ message: error.message });
         }
-    }
-
-
 }
 
 export const getProductInOrder = async (req, res) => {
@@ -520,7 +588,7 @@ export const putOrder = async (req, res) => {
     let id_order = req.body.id_order
 
     console.log(req.body);
-    
+
 
     if (!address || !phoneNumber || !status || !id_order) {
         return res.status(200).json({
