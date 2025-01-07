@@ -351,22 +351,7 @@ export const getProductBought = async (req, res) => {
 }
 
 export const getCart = async (req, res) => {
-    let token = req.query.token
-    if (!req.query.token || req.query.token == 'null') {
-        return res.status(200).json({
-            message: 'oh NOOOOOO'
-        })
-    }
-    console.log(req.query);
-    let id
-    Jwt.verify(token, '05092002', function (err, decoded) {
-        try {
-            id = decoded.id
-        } catch (error) {
-            console.log(error)
-        }
-
-    });
+    let id = req.user.id
     try {
         let results = await readCart(id)
         return res.status(200).json({
