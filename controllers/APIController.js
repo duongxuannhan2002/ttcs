@@ -384,7 +384,7 @@ export const postProductToCart = async (req, res) => {
     let quantity = req.body.quantity
     let id_user = req.user.id
 
-    if (!token || !id_product || !size || !quantity) {
+    if (!id_product || !size || !quantity) {
         return res.status(200).json({
             message: 'oh NOOOOOO'
         })
