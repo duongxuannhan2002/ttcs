@@ -28,7 +28,6 @@ export let upload = multer({ storage: storage, fileFilter: imageFilter });
 
 
 export const postCreateShoes = async (req, res) => {
-    if (req.user.role == "Admin") {
         let imageString = await uploadImageFireBase(req.file)
         console.log('imageString', imageString)
 
@@ -59,11 +58,9 @@ export const postCreateShoes = async (req, res) => {
         } catch (error) {
             return res.status(409).json({ message: error.message });
         }
-    }
 }
 
 export const postUpdateShoes = async (req, res) => {
-    if (req.user.role == "Admin") {
         let id = req.body.id_shoes
         let price = req.body.price
         let discount = req.body.discount
@@ -90,7 +87,6 @@ export const postUpdateShoes = async (req, res) => {
             return res.status(409).json({ message: error.message });
         }
     }
-}
 
 export const putUpdateQuantity = async (req, res) => {
     let id_shoes = req.body.id_shoes

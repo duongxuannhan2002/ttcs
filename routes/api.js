@@ -30,8 +30,7 @@ import {
     changePass,
     putOrderStatus,
     verifyOtp,
-    getAllUser,
-    getAllOrderOfUser,
+    getAllUser
     }  from '../controllers/APIController.js'
 import { postCreateShoes, postDeleteShoes, postUpdateShoes, putUpdateQuantity } from "../controllers/homeController.js";
 import Jwt from 'jsonwebtoken'
@@ -49,7 +48,7 @@ const upload = multer({ storage: storage });
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-
+  
   if (!token) return res.status(401).json({ message: 'Token is required' });
 
   Jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
@@ -81,9 +80,8 @@ router.get('/get-product-bought', authenticateToken ,authorizeRole(['Admin']), g
 router.get('/get-cart', authenticateToken ,authorizeRole(['User', 'Admin']), getCart)
 router.get('/get-quantity', authenticateToken ,authorizeRole(['User', 'Admin']),getQuantity)
 router.get('/get-image', authenticateToken ,authorizeRole(['User', 'Admin']),getImage)
-router.get('/get-user-order', authenticateToken ,authorizeRole(['User']),getAllOrderOfUser)
 
-router.get('/get-all-order', authenticateToken ,authorizeRole(['Admin']),getAllOrder)
+router.get('/get-all-order', authenticateToken ,authorizeRole(['Admin',"User"]),getAllOrder)
 router.get('/get-detail-order', authenticateToken ,authorizeRole(['User', 'Admin']),getProductInOrder)
 // router.get('/test',mainCompareImage)
 router.get('/payment' , authenticateToken ,authorizeRole(['User', 'Admin']), createPayment)
@@ -97,7 +95,7 @@ router.post('/post-to-login', postToLogin)
 router.post('/post-product-to-cart', authenticateToken ,authorizeRole(['User', 'Admin']), postProductToCart)
 router.post('/post-image',upload.single('image'), mainCompareImage)
 router.post('/post-order', authenticateToken ,authorizeRole(['User', 'Admin']), postOrder)
-router.post('/create-shoes', authenticateToken,authorizeRole(['Admin']), upload.single('image'), postCreateShoes)
+router.post('/create-shoes', authenticateToken, authorizeRole(['Admin']), upload.single('image'), postCreateShoes)
 router.post('/update-shoes', authenticateToken ,authorizeRole(['Admin']),postUpdateShoes)
 router.post('/update-size', authenticateToken ,authorizeRole(['Admin']),putUpdateQuantity)
 router.post('/update-status', authenticateToken ,authorizeRole(['Admin']),putOrderStatus)

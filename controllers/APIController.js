@@ -248,7 +248,7 @@ let otpStore = {};
 export const postToLogin = async (req, res) => {
     const { email, pass } = req.body;
     if (!email || !pass) {
-        return res.status(200).json({
+        return res.status(400).json({
             message: 'Vui lòng nhập đủ thông tin'
         });
     }
@@ -273,7 +273,7 @@ export const postToLogin = async (req, res) => {
                 res.status(500).send("Failed to send OTP.");
             }
         } else {
-            return res.status(200).json({
+            return res.status(400).json({
                 message: 'Tài khoản hoặc mật khẩu không chính xác'
             });
         }
@@ -319,7 +319,7 @@ export const verifyOtp = async (req, res) => {
             let results = await readWithEmail(email);
             let payload = {
                 id: results[0].id,
-                role: 'user'
+                role: results[0].role
             };
             let token = await Jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
             return res.status(200).json({
@@ -531,24 +531,22 @@ export const postOrder = async (req, res) => {
     }
 }
 
-export const getAllOrderOfUser = async (req, res) => {
-    let id = req.user.id
-    try {
-        let results = await readOderById(id)
-        results.forEach(e => {
-            e.phone_number = decryptData(e.phone_number)
-            e.address = decryptData(e.address)
-        });
-        return res.status(200).json({
-            massege: 'ok',
-            data: results
-        })
-    } catch (error) {
-        res.status(409).json({ message: error.message });
-    }
-}
-
 export const getAllOrder = async (req, res) => {
+    if(req.query.id_user){
+        try {
+            let results = await readOderById(req.query.id_user)
+            results.forEach(e => {
+                e.phone_number = decryptData(e.phone_number)
+                e.address = decryptData(e.address)
+            });
+            return res.status(200).json({
+                massege: 'ok',
+                data: results
+            })
+        } catch (error) {
+            res.status(409).json({ message: error.message });
+        }
+    } else {
         try {
             let results = await readAllOrder();
             results.forEach(e => {
@@ -562,7 +560,9 @@ export const getAllOrder = async (req, res) => {
         } catch (error) {
             res.status(409).json({ message: error.message });
         }
+    }
 }
+
 
 export const getProductInOrder = async (req, res) => {
     if (!req.query.id_order) {
