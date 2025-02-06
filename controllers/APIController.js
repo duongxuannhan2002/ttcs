@@ -82,15 +82,15 @@ export const getUser = async (req, res) => {
 }
 
 export const getAllUser = async (req, res) => {
-        try {
-            let results = await readListUser()
-            return res.status(200).json({
-                massege: 'ok',
-                data: results
-            })
-        } catch (error) {
-            res.status(409).json({ message: error.message });
-        }
+    try {
+        let results = await readListUser()
+        return res.status(200).json({
+            massege: 'ok',
+            data: results
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
 }
 
 import bcrypt from 'bcrypt';
@@ -159,23 +159,23 @@ export const putUser = async (req, res) => {
 }
 
 export const delUser = async (req, res) => {
-        let id = req.query.id
-        if (!id) {
-            return res.status(200).json({
-                message: 'oh NOOOOOO'
-            })
-        }
-        try {
-            await delCart(id)
-            await deleteOrderItemToDeleteUser(id)
-            await deleteOrderToDeleteUser(id)
-            await deleteUser(id)
-            return res.status(200).json({
-                message: 'ok men'
-            })
-        } catch (error) {
-            res.status(409).json({ message: error.message });
-        }
+    let id = req.query.id
+    if (!id) {
+        return res.status(200).json({
+            message: 'oh NOOOOOO'
+        })
+    }
+    try {
+        await delCart(id)
+        await deleteOrderItemToDeleteUser(id)
+        await deleteOrderToDeleteUser(id)
+        await deleteUser(id)
+        return res.status(200).json({
+            message: 'ok men'
+        })
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
 }
 
 export const getShoesByBrand = async (req, res) => {
@@ -267,18 +267,18 @@ export const postToLogin = async (req, res) => {
                     text: `Your OTP code is: ${userOTP}`,
                 });
 
-                res.send("OTP sent to your email.");
+                res.status(200).json("OTP sent to your email.");
             } catch (err) {
                 console.error(err);
-                res.status(500).send("Failed to send OTP.");
+                res.status(500).json("Failed to send OTP.");
             }
         } else {
-            return res.status(400).json({
-                message: 'Tài khoản hoặc mật khẩu không chính xác'
-            });
+            return res.status(400).json(
+                'Tài khoản hoặc mật khẩu không chính xác'
+            );
         }
     } catch (error) {
-        res.status(409).json({ message: error.message });
+        res.status(409).json({ error });
     }
 };
 
@@ -298,19 +298,19 @@ export const verifyOtp = async (req, res) => {
     const { otp, email } = req.body;
 
     if (!otp) {
-        return res.status(400).send("OTP is required.");
+        return res.status(400).json("OTP is required.");
     }
 
     // Kiểm tra OTP và thời gian hết hạn cho người dùng từ otpStore
     if (!otpStore[email]) {
-        return res.status(400).send("OTP not found.");
+        return res.status(400).json("OTP not found.");
     }
 
     let { userOTP, otpExpires } = otpStore[email];
 
     if (Date.now() > otpExpires) {
         delete otpStore[email];
-        return res.status(400).send("OTP expired.");
+        return res.status(400).json("OTP expired.");
     }
 
     if (otp === userOTP) {
@@ -326,10 +326,10 @@ export const verifyOtp = async (req, res) => {
                 data: token
             });
         } catch (error) {
-            return res.send(error);
+            return res.json(error);
         }
     } else {
-        return res.status(400).send("Invalid OTP.");
+        return res.status(400).json("Invalid OTP.");
     }
 };
 
@@ -517,7 +517,7 @@ export const postOrder = async (req, res) => {
 }
 
 export const getAllOrder = async (req, res) => {
-    if(req.query.id_user){
+    if (req.query.id_user) {
         try {
             let results = await readOderById(req.query.id_user)
             results.forEach(e => {

@@ -70,15 +70,15 @@ const authorizeRole = (roles) => (req, res, next) => {
 
 
 const router = express.Router();
-router.get('/get-shoes', authenticateToken,authorizeRole(['User', 'Admin']) ,getShoes)
-router.get('/get-shoes-by-brand', authenticateToken,authorizeRole(['User', 'Admin']) , getShoesByBrand)
-router.get('/get-shoes-by-search', authenticateToken ,authorizeRole(['User', 'Admin']), getShoesBySearch)
-router.get('/get-1-product', authenticateToken ,authorizeRole(['User','Admin']), get1Product)
+router.get('/get-shoes',getShoes)
+router.get('/get-shoes-by-brand', getShoesByBrand)
+router.get('/get-shoes-by-search', getShoesBySearch)
+router.get('/get-1-product', get1Product)
 router.get('/get-user', authenticateToken ,authorizeRole(['User', 'Admin']), getUser)
 router.get('/get-all-user', authenticateToken ,authorizeRole(['Admin']), getAllUser)
 router.get('/get-product-bought', authenticateToken ,authorizeRole(['Admin']), getProductBought)
 router.get('/get-cart', authenticateToken ,authorizeRole(['User', 'Admin']), getCart)
-router.get('/get-quantity', authenticateToken ,authorizeRole(['User', 'Admin']),getQuantity)
+router.get('/get-quantity',getQuantity)
 router.get('/get-image', authenticateToken ,authorizeRole(['User', 'Admin']),getImage)
 
 router.get('/get-all-order', authenticateToken ,authorizeRole(['Admin',"User"]),getAllOrder)
